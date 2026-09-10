@@ -29,6 +29,14 @@ struct HomeView: View {
         .sheet(item: $openLight) { ref in
             LightDetailSheet(lightID: ref.id)
         }
+        #if DEBUG
+        .task(id: model.store.lights.isEmpty) {
+            // Screenshot helper: `-openLight <light id>` launch argument.
+            if let id = UserDefaults.standard.string(forKey: "openLight"), model.store.light(id) != nil {
+                openLight = LightRef(id: id)
+            }
+        }
+        #endif
     }
 
     // MARK: Header

@@ -251,8 +251,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AppleHome-Info.plist";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "AppleHome uses HomeKit to control your lights and create arrival automations.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "AppleHome uses your location in the background to turn on your lights automatically when you arrive home.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "AppleHome uses your location to show how far you are from home and to set your arrival zone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -295,8 +295,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AppleHome-Info.plist";
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
 				INFOPLIST_KEY_NSHomeKitUsageDescription = "AppleHome uses HomeKit to control your lights and create arrival automations.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "AppleHome uses your location in the background to turn on your lights automatically when you arrive home.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "AppleHome uses your location to show how far you are from home and to set your arrival zone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

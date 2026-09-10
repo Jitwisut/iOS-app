@@ -1,6 +1,9 @@
 import Foundation
 import CoreLocation
 import Observation
+import os
+
+let geofenceLog = Logger(subsystem: "Jitwisut.AppleHome", category: "geofence")
 
 enum ZoneTransition: Sendable {
     case entered, exited
@@ -16,6 +19,8 @@ final class LocationService: NSObject {
     private(set) var location: CLLocation?
 
     private var monitor: CLMonitor?
+    /// Since iOS 18, background monitor events only arrive while an Always session is held.
+    private var backgroundSession: CLServiceSession?
     private var eventsTask: Task<Void, Never>?
     private var liveTask: Task<Void, Never>?
     private static let monitorName = "AppleHomeArrival"
@@ -81,6 +86,7 @@ final class LocationService: NSObject {
         eventsTask = Task { [weak self] in
             do {
                 for try await event in await m.events {
+                    geofenceLog.info("monitor event \(event.identifier, privacy: .public) state=\(String(describing: event.state), privacy: .public)")
                     self?.handle(state: event.state)
                 }
             } catch {}
@@ -90,6 +96,7 @@ final class LocationService: NSObject {
     func setZone(center: Coordinate, radius: Double) async {
         await activateMonitor()
         guard let monitor else { return }
+        if backgroundSession == nil { backgroundSession = CLServiceSession(authorization: .always) }
         await monitor.remove(Self.conditionID)
 
         // If we already know where we are, seed the state so setting the zone up while
@@ -102,12 +109,15 @@ final class LocationService: NSObject {
         } else {
             isInsideZone = nil
         }
+        geofenceLog.info("zone set r=\(radius) assumed=\(String(describing: assumed), privacy: .public)")
         let condition = CLMonitor.CircularGeographicCondition(center: center.clCoordinate, radius: radius)
         await monitor.add(condition, identifier: Self.conditionID, assuming: assumed)
     }
 
     func clearZone() async {
         await monitor?.remove(Self.conditionID)
+        backgroundSession?.invalidate()
+        backgroundSession = nil
         isInsideZone = nil
     }
 
@@ -121,6 +131,7 @@ final class LocationService: NSObject {
         let previous = isInsideZone
         isInsideZone = inside
         guard let previous, previous != inside else { return }
+        geofenceLog.info("transition \(inside ? "entered" : "exited", privacy: .public)")
         onTransition?(inside ? .entered : .exited)
     }
 }

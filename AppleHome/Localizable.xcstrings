@@ -1,0 +1,1565 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ away": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห่าง %@"
+          }
+        }
+      }
+    },
+    "%@ from home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห่างบ้าน %@"
+          }
+        }
+      }
+    },
+    "%@, %lld failed": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, ไม่สำเร็จ %lld ดวง"
+          }
+        }
+      }
+    },
+    "%@: %lld of %lld on": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: เปิด %lld จาก %lld ดวง"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "shouldTranslate": false
+    },
+    "%lld events": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld event"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld events"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld รายการ"
+          }
+        }
+      }
+    },
+    "%lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ดวง"
+          }
+        }
+      }
+    },
+    "%lld of %lld on": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด %lld จาก %lld ดวง"
+          }
+        }
+      }
+    },
+    "%lld on": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด %lld ดวง"
+          }
+        }
+      }
+    },
+    "%lld%%": {
+      "shouldTranslate": false
+    },
+    "200 m or more works most reliably. A bigger zone turns lights on earlier.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รัศมี 200 ม. ขึ้นไปทำงานได้แม่นยำที่สุด ยิ่งเขตกว้าง ไฟก็ยิ่งเปิดเร็วขึ้น"
+          }
+        }
+      }
+    },
+    "3D model of your home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โมเดล 3 มิติของบ้านคุณ"
+          }
+        }
+      }
+    },
+    "A short message when lights change": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แจ้งเตือนสั้นๆ เมื่อไฟเปิดหรือปิด"
+          }
+        }
+      }
+    },
+    "API": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API"
+          }
+        }
+      }
+    },
+    "API format": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รูปแบบ API"
+          }
+        }
+      }
+    },
+    "Active": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทำงานอยู่"
+          }
+        }
+      }
+    },
+    "Activity": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ประวัติการทำงาน"
+          }
+        }
+      }
+    },
+    "Add your server URL in Settings first.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กรุณาใส่ URL ของเซิร์ฟเวอร์ในหน้าตั้งค่าก่อน"
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งหมด"
+          }
+        }
+      }
+    },
+    "All lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟทั้งหมด"
+          }
+        }
+      }
+    },
+    "All off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดทั้งหมด"
+          }
+        }
+      }
+    },
+    "All on": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดทั้งหมด"
+          }
+        }
+      }
+    },
+    "Allow Always": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตตลอดเวลา"
+          }
+        }
+      }
+    },
+    "Allow location access": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตให้เข้าถึงตำแหน่ง"
+          }
+        }
+      }
+    },
+    "Allow location “Always”": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตตำแหน่งแบบ “ตลอดเวลา”"
+          }
+        }
+      }
+    },
+    "Apple Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Home"
+          }
+        }
+      }
+    },
+    "Apple Home automation": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ระบบอัตโนมัติใน Apple Home"
+          }
+        }
+      }
+    },
+    "AppleHome follows your iPhone language. To choose Thai or English just for this app, open Settings › AppleHome › Language.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome ใช้ภาษาตาม iPhone ของคุณ หากต้องการเลือกภาษาไทยหรืออังกฤษเฉพาะแอปนี้ ให้ไปที่ การตั้งค่า › AppleHome › ภาษา"
+          }
+        }
+      }
+    },
+    "AppleHome uses your location only to notice when you enter or leave your home zone.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome ใช้ตำแหน่งของคุณเพื่อตรวจจับว่าคุณเข้าหรือออกจากเขตบ้านเท่านั้น"
+          }
+        }
+      }
+    },
+    "Arrival": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Arrival lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟเมื่อถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Arrival zone": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เขตถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Arrive Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Arrived home during daylight. Lights left as they were.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถึงบ้านตอนกลางวัน จึงไม่ได้เปิดไฟ"
+          }
+        }
+      }
+    },
+    "At home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อยู่บ้าน"
+          }
+        }
+      }
+    },
+    "Away": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่อยู่บ้าน"
+          }
+        }
+      }
+    },
+    "Bearer token (optional)": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer token (ไม่บังคับ)"
+          }
+        }
+      }
+    },
+    "Bedroom": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห้องนอน"
+          }
+        }
+      }
+    },
+    "Bedroom Ceiling": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟเพดานห้องนอน"
+          }
+        }
+      }
+    },
+    "Bedside Lamp": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โคมไฟหัวเตียง"
+          }
+        }
+      }
+    },
+    "Brightness": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความสว่าง"
+          }
+        }
+      }
+    },
+    "Cabinet Strip": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟเส้นใต้ตู้"
+          }
+        }
+      }
+    },
+    "Can't reach the server. %@": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ %@"
+          }
+        }
+      }
+    },
+    "Ceiling Light": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟเพดาน"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ล้าง"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        }
+      }
+    },
+    "Connect your light server or Apple Home, or turn on demo lights.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่อเซิร์ฟเวอร์ไฟหรือ Apple Home หรือเปิดใช้ไฟตัวอย่าง"
+          }
+        }
+      }
+    },
+    "Connected": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่อแล้ว"
+          }
+        }
+      }
+    },
+    "Connected · found %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Connected · found %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Connected · found %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่อแล้ว · พบไฟ %lld ดวง"
+          }
+        }
+      }
+    },
+    "Connecting…": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังเชื่อมต่อ…"
+          }
+        }
+      }
+    },
+    "Connections": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเชื่อมต่อ"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดำเนินการต่อ"
+          }
+        }
+      }
+    },
+    "Control lights through your own HTTP server, e.g. an ESP32, Node-RED or Home Assistant bridge. Lights controlled this way can switch on from the background when you arrive.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ควบคุมไฟผ่านเซิร์ฟเวอร์ HTTP ของคุณเอง เช่น ESP32, Node-RED หรือ Home Assistant ไฟที่ต่อแบบนี้เปิดเองได้แม้แอปทำงานเบื้องหลังตอนคุณถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Control the lights you've added to Apple's Home app. Arrival automations are saved into Apple Home and run by your home hub.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ควบคุมไฟที่เพิ่มไว้ในแอป Home ของ Apple ระบบอัตโนมัติตอนถึงบ้านจะบันทึกไว้ใน Apple Home และสั่งงานโดย Home Hub"
+          }
+        }
+      }
+    },
+    "Couldn't save": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกไม่สำเร็จ"
+          }
+        }
+      }
+    },
+    "Demo": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตัวอย่าง"
+          }
+        }
+      }
+    },
+    "Demo lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟตัวอย่าง"
+          }
+        }
+      }
+    },
+    "Disconnected": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ขาดการเชื่อมต่อ"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        }
+      }
+    },
+    "Do nothing": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ต้องทำอะไร"
+          }
+        }
+      }
+    },
+    "Drag to rotate · Tap a room": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลากเพื่อหมุน · แตะเพื่อเลือกห้อง"
+          }
+        }
+      }
+    },
+    "Each light: id, name, room, on, brightness (0–100). Full details are in API.md in the project.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟแต่ละดวงมี id, name, room, on, brightness (0–100) ดูรายละเอียดทั้งหมดได้ในไฟล์ API.md ของโปรเจกต์"
+          }
+        }
+      }
+    },
+    "Floor Lamp": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โคมไฟตั้งพื้น"
+          }
+        }
+      }
+    },
+    "Good afternoon": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สวัสดีตอนบ่าย"
+          }
+        }
+      }
+    },
+    "Good evening": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สวัสดีตอนเย็น"
+          }
+        }
+      }
+    },
+    "Good morning": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สวัสดีตอนเช้า"
+          }
+        }
+      }
+    },
+    "Good night": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ราตรีสวัสดิ์"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บ้าน"
+          }
+        }
+      }
+    },
+    "Home hub": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home Hub"
+          }
+        }
+      }
+    },
+    "Home name": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อบ้าน"
+          }
+        }
+      }
+    },
+    "Including lights you add later": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รวมถึงไฟที่เพิ่มในภายหลัง"
+          }
+        }
+      }
+    },
+    "Kitchen": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห้องครัว"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ภาษา"
+          }
+        }
+      }
+    },
+    "Leaving": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ออกจากบ้าน"
+          }
+        }
+      }
+    },
+    "Light server": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์ไฟ"
+          }
+        }
+      }
+    },
+    "Light server (API)": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์ไฟ (API)"
+          }
+        }
+      }
+    },
+    "Lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟ"
+          }
+        }
+      }
+    },
+    "Living Room": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห้องนั่งเล่น"
+          }
+        }
+      }
+    },
+    "Location is turned off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดการเข้าถึงตำแหน่งอยู่"
+          }
+        }
+      }
+    },
+    "My Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บ้านของฉัน"
+          }
+        }
+      }
+    },
+    "Needs a home hub": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต้องมี Home Hub"
+          }
+        }
+      }
+    },
+    "No Apple Home found. Set up a home in the Home app first.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบบ้านใน Apple Home กรุณาตั้งค่าบ้านในแอป Home ก่อน"
+          }
+        }
+      }
+    },
+    "No homes found. Create one in the Home app, then come back.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบบ้าน สร้างบ้านในแอป Home แล้วกลับมาที่นี่อีกครั้ง"
+          }
+        }
+      }
+    },
+    "No lights yet": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีไฟ"
+          }
+        }
+      }
+    },
+    "No response": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ตอบสนอง"
+          }
+        }
+      }
+    },
+    "Not found": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบ"
+          }
+        }
+      }
+    },
+    "Not set up": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่ได้ตั้งค่า"
+          }
+        }
+      }
+    },
+    "Nothing yet. Arrivals, departures and tests will show up here.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีรายการ การถึงบ้าน การออกจากบ้าน และการทดสอบจะแสดงที่นี่"
+          }
+        }
+      }
+    },
+    "Notify me": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แจ้งเตือนฉัน"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        }
+      }
+    },
+    "On": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด"
+          }
+        }
+      }
+    },
+    "On · %@ around home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดอยู่ · รัศมี %@ รอบบ้าน"
+          }
+        }
+      }
+    },
+    "Only after sunset": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เฉพาะหลังพระอาทิตย์ตก"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดการตั้งค่า"
+          }
+        }
+      }
+    },
+    "Opens brightness controls": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดตัวปรับความสว่าง"
+          }
+        }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อื่นๆ"
+          }
+        }
+      }
+    },
+    "Pendant": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โคมไฟห้อย"
+          }
+        }
+      }
+    },
+    "Porch": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หน้าบ้าน"
+          }
+        }
+      }
+    },
+    "Porch Light": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟหน้าบ้าน"
+          }
+        }
+      }
+    },
+    "Radius": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รัศมี"
+          }
+        }
+      }
+    },
+    "Radius around home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รัศมีรอบบ้าน"
+          }
+        }
+      }
+    },
+    "Recent": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ล่าสุด"
+          }
+        }
+      }
+    },
+    "Runs the same actions right away, so you can check which lights respond.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สั่งงานแบบเดียวกันทันที เพื่อให้คุณเช็กได้ว่าไฟดวงไหนตอบสนอง"
+          }
+        }
+      }
+    },
+    "Saved in Apple Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกใน Apple Home แล้ว"
+          }
+        }
+      }
+    },
+    "Saving…": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังบันทึก…"
+          }
+        }
+      }
+    },
+    "Server": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์"
+          }
+        }
+      }
+    },
+    "Server URL": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL เซิร์ฟเวอร์"
+          }
+        }
+      }
+    },
+    "Set home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งตำแหน่งบ้าน"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งค่า"
+          }
+        }
+      }
+    },
+    "Simulate arrival": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "จำลองถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Skip it during daylight": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่เปิดไฟตอนกลางวัน"
+          }
+        }
+      }
+    },
+    "Status": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานะ"
+          }
+        }
+      }
+    },
+    "Sync now": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ซิงก์ตอนนี้"
+          }
+        }
+      }
+    },
+    "Tap the map to set your home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แตะแผนที่เพื่อตั้งตำแหน่งบ้าน"
+          }
+        }
+      }
+    },
+    "Test connection": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทดสอบการเชื่อมต่อ"
+          }
+        }
+      }
+    },
+    "Thai or English": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไทยหรืออังกฤษ"
+          }
+        }
+      }
+    },
+    "The automation is saved, but it only runs with a home hub (Apple TV or HomePod) at home.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกระบบอัตโนมัติแล้ว แต่จะทำงานได้เมื่อมี Home Hub (Apple TV หรือ HomePod) อยู่ที่บ้านเท่านั้น"
+          }
+        }
+      }
+    },
+    "The server URL isn't valid. It should start with http:// or https://": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL เซิร์ฟเวอร์ไม่ถูกต้อง ต้องขึ้นต้นด้วย http:// หรือ https://"
+          }
+        }
+      }
+    },
+    "The server rejected the token.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์ปฏิเสธ token"
+          }
+        }
+      }
+    },
+    "The server replied in an unexpected format.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์ตอบกลับในรูปแบบที่ไม่รู้จัก"
+          }
+        }
+      }
+    },
+    "The server returned error %lld.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เซิร์ฟเวอร์ตอบกลับด้วยข้อผิดพลาด %lld"
+          }
+        }
+      }
+    },
+    "To turn lights on while the app is closed, iOS needs location access set to “Always”.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หากต้องการให้ไฟเปิดเองแม้ปิดแอปอยู่ ต้องตั้งค่าการเข้าถึงตำแหน่งเป็น “ตลอดเวลา”"
+          }
+        }
+      }
+    },
+    "Token": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token"
+          }
+        }
+      }
+    },
+    "Try it now": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองเลย"
+          }
+        }
+      }
+    },
+    "Try the app without hardware": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองใช้แอปได้โดยไม่ต้องมีอุปกรณ์"
+          }
+        }
+      }
+    },
+    "Turn lights off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟ"
+          }
+        }
+      }
+    },
+    "Turn lights on automatically when you get home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟอัตโนมัติเมื่อคุณถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Turn off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        }
+      }
+    },
+    "Turn on": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด"
+          }
+        }
+      }
+    },
+    "Turn on arrival lights and set your home to create the automation.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดใช้ “เปิดไฟเมื่อถึงบ้าน” และตั้งตำแหน่งบ้าน เพื่อสร้างระบบอัตโนมัติ"
+          }
+        }
+      }
+    },
+    "Turn on lights when I arrive": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟเมื่อฉันถึงบ้าน"
+          }
+        }
+      }
+    },
+    "Turn on location for AppleHome in Settings so it can tell when you arrive.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดการเข้าถึงตำแหน่งให้ AppleHome ในการตั้งค่า เพื่อให้แอปรู้ว่าคุณถึงบ้านแล้ว"
+          }
+        }
+      }
+    },
+    "Turned off %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Turned off %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Turned off %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟแล้ว %lld ดวง"
+          }
+        }
+      }
+    },
+    "Turned on %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Turned on %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Turned on %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟแล้ว %lld ดวง"
+          }
+        }
+      }
+    },
+    "Updating the automation in Apple Home.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังอัปเดตระบบอัตโนมัติใน Apple Home"
+          }
+        }
+      }
+    },
+    "Use Apple Home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้ Apple Home"
+          }
+        }
+      }
+    },
+    "Use light server": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้เซิร์ฟเวอร์ไฟ"
+          }
+        }
+      }
+    },
+    "Use my location": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้ตำแหน่งปัจจุบัน"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เวอร์ชัน"
+          }
+        }
+      }
+    },
+    "Waiting for your location": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังหาตำแหน่งของคุณ"
+          }
+        }
+      }
+    },
+    "Welcome home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยินดีต้อนรับกลับบ้าน"
+          }
+        }
+      }
+    },
+    "When I leave": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เมื่อฉันออกจากบ้าน"
+          }
+        }
+      }
+    },
+    "Whole home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งบ้าน"
+          }
+        }
+      }
+    },
+    "Without a home hub (Apple TV or HomePod), Apple Home can't run the arrival automation while you're away.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หากไม่มี Home Hub (Apple TV หรือ HomePod) Apple Home จะสั่งงานระบบอัตโนมัติตอนคุณไม่อยู่บ้านไม่ได้"
+          }
+        }
+      }
+    },
+    "You left home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คุณออกจากบ้านแล้ว"
+          }
+        }
+      }
+    },
+    "You're home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คุณอยู่บ้าน"
+          }
+        }
+      }
+    },
+    "Your home hub runs it, even when this app is closed.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home Hub จะสั่งงานให้ แม้ว่าแอปนี้จะปิดอยู่"
+          }
+        }
+      }
+    },
+    "Your lights turn on by themselves as you get close to home.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟจะเปิดเองเมื่อคุณเข้าใกล้บ้าน"
+          }
+        }
+      }
+    },
+    "·": {
+      "shouldTranslate": false
+    }
+  },
+  "version": "1.0"
+}

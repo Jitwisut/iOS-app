@@ -1,0 +1,74 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSHomeKitUsageDescription": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "AppleHome uses HomeKit to control your lights and create arrival automations."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome ใช้ HomeKit เพื่อควบคุมไฟและสร้างระบบอัตโนมัติเมื่อคุณถึงบ้าน"
+          }
+        }
+      }
+    },
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "AppleHome connects to your light server on the home network."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome เชื่อมต่อกับเซิร์ฟเวอร์ไฟในเครือข่ายบ้านของคุณ"
+          }
+        }
+      }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "AppleHome uses your location in the background to turn on your lights automatically when you arrive home."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome ใช้ตำแหน่งของคุณแม้แอปทำงานเบื้องหลัง เพื่อเปิดไฟให้อัตโนมัติเมื่อคุณถึงบ้าน"
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "AppleHome uses your location to show how far you are from home and to set your arrival zone."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AppleHome ใช้ตำแหน่งของคุณเพื่อแสดงระยะห่างจากบ้านและตั้งเขตถึงบ้าน"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

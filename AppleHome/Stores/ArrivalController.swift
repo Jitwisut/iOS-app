@@ -2,6 +2,7 @@ import SwiftUI
 import CoreLocation
 import Observation
 import UserNotifications
+import os
 
 /// Turns geofence transitions into light actions, and keeps the zone (CLMonitor) and the
 /// Apple Home automation in step with the user's arrival settings.
@@ -119,6 +120,7 @@ final class ArrivalController {
     }
 
     private func report(kind: ActivityEntry.Kind, result: (done: Int, failed: Int), title: String, message: String) {
+        geofenceLog.info("automation \(kind.rawValue, privacy: .public): \(result.done) done, \(result.failed) failed")
         if result.failed > 0 {
             log.add(.error, String(localized: "\(message), \(result.failed) failed"))
         } else {

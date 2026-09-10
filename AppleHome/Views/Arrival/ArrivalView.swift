@@ -3,7 +3,7 @@ import MapKit
 
 struct ArrivalView: View {
     @Environment(AppModel.self) private var model
-    @State private var camera: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var camera: MapCameraPosition = .automatic
     @State private var radiusDraft: Double?
     @State private var runningTest = false
 
@@ -32,7 +32,14 @@ struct ArrivalView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: String.self) { _ in LightPickerView() }
         }
-        .onAppear(perform: focusHome)
+        .onAppear {
+            // Open on the home zone (not the user, who may be kilometres away).
+            if let home = model.arrival.settings.home {
+                camera = homeCamera(home)
+            } else {
+                camera = .userLocation(fallback: .automatic)
+            }
+        }
     }
 
     // MARK: Title
@@ -323,9 +330,11 @@ struct ArrivalView: View {
 
     private func focusHome() {
         guard let home = model.arrival.settings.home else { return }
-        withAnimation(.softSpring) {
-            camera = .camera(MapCamera(centerCoordinate: home.clCoordinate, distance: max(900, radius * 5.5), heading: 0, pitch: 50))
-        }
+        withAnimation(.softSpring) { camera = homeCamera(home) }
+    }
+
+    private func homeCamera(_ home: Coordinate) -> MapCameraPosition {
+        .camera(MapCamera(centerCoordinate: home.clCoordinate, distance: max(900, radius * 5.5), heading: 0, pitch: 50))
     }
 
     private func runTest(_ transition: ZoneTransition) {
