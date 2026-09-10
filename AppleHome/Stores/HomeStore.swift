@@ -1,6 +1,13 @@
 import SwiftUI
 import Observation
 
+struct AutomationResult {
+    var done = 0
+    var failed = 0
+    /// Lights the Apple Home automation switches instead of the app.
+    var leftToHomeKit = 0
+}
+
 /// Every light from every enabled provider, with optimistic control.
 @Observable
 final class HomeStore {
@@ -117,25 +124,29 @@ final class HomeStore {
 
     /// Runs an arrival/departure action. HomeKit lights are skipped unless `includeHomeKit`,
     /// because the home hub runs those from the Apple Home automation.
-    func runAutomation(isOn: Bool, lightIDs: Set<String>, includeHomeKit: Bool) async -> (done: Int, failed: Int) {
+    func runAutomation(isOn: Bool, lightIDs: Set<String>, includeHomeKit: Bool) async -> AutomationResult {
         if lights.isEmpty { await refresh() }
-        let allowed = enabledSources.filter { includeHomeKit || $0 != .homeKit }
-        let targets: [(source: LightSource, remoteID: String)] = lightIDs.isEmpty
-            ? lights.filter { allowed.contains($0.source) }.map { ($0.source, $0.remoteID) }
-            : lightIDs.compactMap(Light.parse).filter { allowed.contains($0.source) }
+        let candidates: [(source: LightSource, remoteID: String)] = lightIDs.isEmpty
+            ? lights.map { ($0.source, $0.remoteID) }
+            : lightIDs.compactMap(Light.parse)
+        let enabled = candidates.filter { enabledSources.contains($0.source) }
 
-        var done = 0, failed = 0
-        for target in targets {
+        var result = AutomationResult()
+        for target in enabled {
+            if target.source == .homeKit && !includeHomeKit {
+                result.leftToHomeKit += 1
+                continue
+            }
             guard let provider = providers[target.source] else { continue }
             do {
                 try await provider.setPower(isOn, remoteID: target.remoteID)
                 mutate(Light.makeID(source: target.source, remoteID: target.remoteID)) { $0.isOn = isOn }
-                done += 1
+                result.done += 1
             } catch {
-                failed += 1
+                result.failed += 1
             }
         }
-        return (done, failed)
+        return result
     }
 
     private func mutate(_ id: String, animated: Bool = true, _ change: (inout Light) -> Void) {

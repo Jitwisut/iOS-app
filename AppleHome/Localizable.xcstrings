@@ -293,6 +293,34 @@
         }
       }
     },
+    "Apple Home is switching %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Apple Home is switching %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Apple Home is switching %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Home กำลังสั่งไฟ %lld ดวง"
+          }
+        }
+      }
+    },
     "AppleHome follows your iPhone language. To choose Thai or English just for this app, open Settings › AppleHome › Language.": {
       "localizations": {
         "th": {
@@ -641,16 +669,6 @@
         }
       }
     },
-    "Drag to rotate · Tap a room": {
-      "localizations": {
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ลากเพื่อหมุน · แตะเพื่อเลือกห้อง"
-          }
-        }
-      }
-    },
     "Each light: id, name, room, on, brightness (0–100). Full details are in API.md in the project.": {
       "localizations": {
         "th": {
@@ -811,6 +829,16 @@
         }
       }
     },
+    "Lights didn't respond": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟไม่ตอบสนอง"
+          }
+        }
+      }
+    },
     "Living Room": {
       "localizations": {
         "th": {
@@ -867,6 +895,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไม่พบบ้าน สร้างบ้านในแอป Home แล้วกลับมาที่นี่อีกครั้ง"
+          }
+        }
+      }
+    },
+    "No lights could be reached. Check your light server.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ติดต่อไฟไม่ได้เลย กรุณาตรวจสอบเซิร์ฟเวอร์ไฟ"
           }
         }
       }
@@ -1157,6 +1195,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "สถานะ"
+          }
+        }
+      }
+    },
+    "Swipe to rotate · Tap a room": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปัดเพื่อหมุน · แตะเพื่อเลือกห้อง"
           }
         }
       }

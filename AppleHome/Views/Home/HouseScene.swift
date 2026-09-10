@@ -43,9 +43,8 @@ final class HouseScene {
     private static let maxLumens: Float = 16000
 
     private var yaw: Float = -.pi / 5
-    private var pitch: Float = 0.68
+    private let pitch: Float = 0.68
     private var dragStart: (yaw: Float, pitch: Float)?
-    private static let pitchRange: ClosedRange<Float> = 0.35...1.15
     private static let cameraDistance: Float = 5.5
 
     init() {
@@ -63,12 +62,11 @@ final class HouseScene {
 
     // MARK: Orbit
 
-    /// Horizontal drag spins the house; vertical drag tilts the camera.
+    /// Horizontal drag spins the house (vertical drags are left to the page's scroll view).
     func drag(by translation: CGSize) {
         let start = dragStart ?? (yaw, pitch)
         dragStart = start
         yaw = start.yaw + Float(translation.width) * 0.009
-        pitch = min(max(start.pitch + Float(translation.height) * 0.004, Self.pitchRange.lowerBound), Self.pitchRange.upperBound)
         applyOrbit()
     }
 

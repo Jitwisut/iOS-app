@@ -7,6 +7,8 @@ struct House3DView: View {
     var onSelectRoom: (String?) -> Void
 
     @State private var scene = HouseScene()
+    /// Decided on the first movement: horizontal spins the house, vertical scrolls the page.
+    @State private var isRotating: Bool?
 
     var body: some View {
         RealityView { content in
@@ -16,10 +18,18 @@ struct House3DView: View {
         } update: { _ in
             scene.sync(rooms: rooms, selected: selectedRoom)
         }
-        .gesture(
-            DragGesture(minimumDistance: 6)
-                .onChanged { scene.drag(by: $0.translation) }
-                .onEnded { scene.endDrag(predictedTranslation: $0.predictedEndTranslation) }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { value in
+                    if isRotating == nil {
+                        isRotating = abs(value.translation.width) > abs(value.translation.height)
+                    }
+                    if isRotating == true { scene.drag(by: value.translation) }
+                }
+                .onEnded { value in
+                    if isRotating == true { scene.endDrag(predictedTranslation: value.predictedEndTranslation) }
+                    isRotating = nil
+                }
         )
         .simultaneousGesture(
             SpatialTapGesture()

@@ -14,6 +14,8 @@
 2. Target **AppleHome › Signing & Capabilities** เลือก Team ของคุณ (HomeKit capability ถูกตั้งไว้แล้วใน `AppleHome/AppleHome.entitlements`)
 3. Run บน iPhone จริงเพื่อใช้ตำแหน่งและ HomeKit ส่วน Simulator ใช้ทดสอบ UI, API และ geofence ได้
 
+> ถ้า build ลงเครื่องจริงแล้ว signing ไม่ยอมรับ HomeKit entitlement (ขึ้นอยู่กับประเภทบัญชี Developer) ให้ลบ capability HomeKit ออก ส่วนที่ควบคุมผ่าน API และ geofence ยังใช้งานได้ครบ
+
 ## การทำงานของ "เปิดไฟเมื่อถึงบ้าน"
 
 | ประเภทไฟ | ใครเป็นคนสั่ง | เงื่อนไข |

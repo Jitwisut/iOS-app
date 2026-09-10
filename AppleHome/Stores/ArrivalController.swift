@@ -23,9 +23,10 @@ final class ArrivalController {
     private let homeKit: HomeKitManager
     private let log: ActivityLog
     private var syncTask: Task<Void, Never>?
-    private var lastRun: [ZoneTransition: Date] = [:]
-    /// Ignore GPS jitter around the edge of the zone.
+    /// Ignore GPS jitter around the edge of the zone. Persisted, because background
+    /// arrivals usually run in a freshly relaunched process.
     private let cooldown: TimeInterval = 180
+    private static let lastRunKey = "arrival.lastRun"
 
     init(location: LocationService, store: HomeStore, homeKit: HomeKitManager, log: ActivityLog) {
         self.location = location
@@ -92,8 +93,10 @@ final class ArrivalController {
 
     private func handle(_ transition: ZoneTransition, isTest: Bool = false) async {
         guard settings.isEnabled || isTest else { return }
-        if !isTest, let last = lastRun[transition], Date().timeIntervalSince(last) < cooldown { return }
-        lastRun[transition] = Date()
+        let runKey = "\(Self.lastRunKey).\(transition.rawValue)"
+        if !isTest, let last = UserDefaults.standard.object(forKey: runKey) as? Date,
+           Date().timeIntervalSince(last) < cooldown { return }
+        if !isTest { UserDefaults.standard.set(Date(), forKey: runKey) }
 
         // A background relaunch only gets a few seconds; ask for a little more.
         let taskID = UIApplication.shared.beginBackgroundTask(withName: "arrival")
@@ -106,27 +109,44 @@ final class ArrivalController {
                 return
             }
             let result = await store.runAutomation(isOn: true, lightIDs: settings.lightIDs, includeHomeKit: isTest)
-            report(kind: isTest ? .test : .arrived, result: result,
-                   title: String(localized: "Welcome home"),
-                   message: String(localized: "Turned on \(result.done) lights"))
+            report(result, turningOn: true, isTest: isTest)
 
         case .exited:
             guard settings.onLeave == .turnOff else { return }
             let result = await store.runAutomation(isOn: false, lightIDs: settings.lightIDs, includeHomeKit: isTest)
-            report(kind: isTest ? .test : .left, result: result,
-                   title: String(localized: "You left home"),
-                   message: String(localized: "Turned off \(result.done) lights"))
+            report(result, turningOn: false, isTest: isTest)
         }
     }
 
-    private func report(kind: ActivityEntry.Kind, result: (done: Int, failed: Int), title: String, message: String) {
-        geofenceLog.info("automation \(kind.rawValue, privacy: .public): \(result.done) done, \(result.failed) failed")
-        if result.failed > 0 {
-            log.add(.error, String(localized: "\(message), \(result.failed) failed"))
+    private func report(_ result: AutomationResult, turningOn: Bool, isTest: Bool) {
+        geofenceLog.info("automation on=\(turningOn): \(result.done) done, \(result.failed) failed, \(result.leftToHomeKit) via Apple Home")
+        var kind: ActivityEntry.Kind = isTest ? .test : (turningOn ? .arrived : .left)
+        var title = turningOn ? String(localized: "Welcome home") : String(localized: "You left home")
+        var message: String
+        var shouldNotify = settings.notify && !isTest
+
+        if result.done == 0 && result.failed == 0 {
+            if result.leftToHomeKit > 0 {
+                // Nothing for the app to do; the hub runs the Apple Home automation.
+                message = String(localized: "Apple Home is switching \(result.leftToHomeKit) lights")
+                shouldNotify = false
+            } else {
+                kind = .error
+                title = String(localized: "Lights didn't respond")
+                message = String(localized: "No lights could be reached. Check your light server.")
+            }
         } else {
-            log.add(kind, message)
+            message = turningOn
+                ? String(localized: "Turned on \(result.done) lights")
+                : String(localized: "Turned off \(result.done) lights")
+            if result.failed > 0 {
+                kind = .error
+                message = String(localized: "\(message), \(result.failed) failed")
+            }
         }
-        guard settings.notify, kind != .test else { return }
+
+        log.add(kind, message)
+        guard shouldNotify else { return }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message

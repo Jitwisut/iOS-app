@@ -86,7 +86,7 @@ struct HomeView: View {
             }
             .frame(height: 330)
             .overlay(alignment: .topLeading) {
-                Label("Drag to rotate · Tap a room", systemImage: "hand.draw")
+                Label("Swipe to rotate · Tap a room", systemImage: "hand.draw")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(Theme.textSecondary)
                     .padding(.horizontal, 4)
@@ -121,6 +121,8 @@ struct HomeView: View {
             } label: {
                 Text(on > 0 ? "All off" : "All on")
                     .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .padding(.horizontal, 16)
                     .frame(minHeight: 44)
             }
@@ -264,6 +266,8 @@ private struct LocationPill: View {
                     .foregroundStyle(arrival.isHome == true ? Theme.mint : Theme.cyan)
                 Text(label)
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .contentTransition(.numericText())
             }
             .font(.footnote.weight(.semibold))

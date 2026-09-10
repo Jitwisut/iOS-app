@@ -5,7 +5,7 @@ import os
 
 let geofenceLog = Logger(subsystem: "Jitwisut.AppleHome", category: "geofence")
 
-enum ZoneTransition: Sendable {
+enum ZoneTransition: String, Sendable {
     case entered, exited
 }
 
