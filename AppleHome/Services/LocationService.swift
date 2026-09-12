@@ -107,13 +107,18 @@ final class LocationService: NSObject {
         if backgroundSession == nil { backgroundSession = CLServiceSession(authorization: .always) }
         await monitor.remove(Self.conditionID)
 
-        // If we already know where we are, seed the state so setting the zone up while
-        // standing at home doesn't count as an "arrival".
+        // If we already know where we are, seed the state through the same dedup path a real
+        // geofence event uses. The very first time (isInsideZone still nil) that silently
+        // seeds without firing, so turning the feature on while standing at home doesn't
+        // count as an "arrival" — but editing an already-configured home location or radius
+        // later, in a way that flips whether you're now inside or outside, *does* fire the
+        // matching transition. Dragging home away from where you're standing should turn the
+        // lights off, the same as actually walking away would.
         var assumed: CLMonitor.Event.State = .unknown
         if let location {
             let inside = location.distance(from: center.location) <= radius
             assumed = inside ? .satisfied : .unsatisfied
-            isInsideZone = inside
+            handle(inside: inside)
         } else {
             isInsideZone = nil
         }
