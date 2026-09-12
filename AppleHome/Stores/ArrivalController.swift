@@ -78,6 +78,7 @@ final class ArrivalController {
     }
 
     private func applyZone() async {
+        geofenceLog.info("applyZone enabled=\(self.settings.isEnabled) hasHome=\(self.settings.home != nil) r=\(self.settings.radius)")
         if settings.isEnabled, let home = settings.home {
             await location.setZone(center: home, radius: settings.radius)
         } else {

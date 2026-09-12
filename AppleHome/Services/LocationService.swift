@@ -81,8 +81,10 @@ final class LocationService: NSObject {
     /// Must run at launch (including background relaunches) so pending events get delivered.
     func activateMonitor() async {
         guard monitor == nil else { return }
+        geofenceLog.info("creating monitor")
         let m = await CLMonitor(Self.monitorName)
         monitor = m
+        geofenceLog.info("monitor ready, auth=\(String(describing: self.authorization), privacy: .public)")
         eventsTask = Task { [weak self] in
             do {
                 for try await event in await m.events {

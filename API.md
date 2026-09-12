@@ -1,7 +1,46 @@
 # AppleHome Light Server API
 
-AppleHome can control lights through any HTTP server that implements the two endpoints
-below, e.g. an ESP32, Node-RED, a Raspberry Pi, or a bridge to another platform.
+AppleHome talks to your own hardware in one of two shapes, chosen under
+**Settings › Light server (API) › Kind**:
+
+- **One on/off device** — a single device with fixed endpoints, e.g. an ESP32 relay.
+  See [One on/off device](#one-onoff-device) below.
+- **Server with many lights** — a server that lists several lights and supports
+  brightness. That is the REST contract documented in the rest of this file.
+
+---
+
+## One on/off device
+
+Default paths, all configurable in the app:
+
+```
+POST {base}/api/on       -> {"on": true}
+POST {base}/api/off      -> {"on": false}
+GET  {base}/api/status   -> {"on": true}
+```
+
+- **Address**: e.g. `http://192.168.1.46`
+- **Auth**: the API key is sent in a header you choose, `X-API-Key` by default.
+  Reply `401` to reject it.
+- The reply to every call should include the resulting state; the app reads
+  `on`, `state`, `power` or `status`, accepting `true/false`, `1/0` or `"on"/"off"`.
+- Brightness is not used in this mode; the light shows as simply on or off.
+
+Verified against an ESP device with:
+
+```bash
+curl -i -X POST -H "X-API-Key: <key>" "http://192.168.1.46/api/on"
+```
+
+Arrival automation calls `POST /api/on` when you enter your zone, and `POST /api/off`
+when you leave (if that option is on). A failed call is retried once after a second,
+because these devices often drop the first connection after idling.
+
+---
+
+## Server with many lights
+
 Set it up in the app under **Settings › Light server (API)**.
 
 - **Base URL**: e.g. `https://home.example.com/api` or `http://192.168.1.50:8080`

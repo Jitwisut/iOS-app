@@ -1,6 +1,7 @@
 import SwiftUI
 import Observation
 import HomeKit
+import os
 
 enum AppTab: Hashable {
     case home, arrival, settings
@@ -44,6 +45,28 @@ final class AppModel {
             }
         }
         if settings.homeKitEnabled { homeKit.activate() }
+
+        #if DEBUG
+        // Testing helpers, never compiled into a release build. JSON is passed base64-encoded
+        // because UserDefaults silently drops launch arguments that start with "{".
+        //   -seedAPIKey <key>            writes the keychain, which `defaults` can't reach
+        //   -seedSettings <base64 json>  replaces the stored app settings
+        //   -seedArrival  <base64 json>  replaces the stored arrival settings
+        func seededJSON(_ key: String) -> Data? {
+            guard let encoded = UserDefaults.standard.string(forKey: key) else { return nil }
+            return Data(base64Encoded: encoded)
+        }
+        if let seeded = UserDefaults.standard.string(forKey: "seedAPIKey"), !seeded.isEmpty {
+            Keychain.apiToken = seeded
+        }
+        if let data = seededJSON("seedSettings"), let decoded = try? JSONDecoder().decode(AppSettings.self, from: data) {
+            self.settings = decoded
+        }
+        if let data = seededJSON("seedArrival"), let decoded = try? JSONDecoder().decode(ArrivalSettings.self, from: data) {
+            arrival.settings = decoded
+        }
+        geofenceLog.info("settings loaded: demo=\(self.settings.demoEnabled), api=\(self.settings.api.isEnabled), mode=\(self.settings.api.mode.rawValue, privacy: .public), base=\(self.settings.api.baseURL, privacy: .public)")
+        #endif
 
         Task {
             await arrival.start()

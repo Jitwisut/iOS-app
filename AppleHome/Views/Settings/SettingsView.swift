@@ -1,13 +1,16 @@
 import SwiftUI
 import HomeKit
 
+private enum SettingsRoute: Hashable { case api, homeKit, activity }
+
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openURL) private var openURL
+    @State private var path: [SettingsRoute] = []
 
     var body: some View {
         @Bindable var model = model
-        NavigationStack {
+        NavigationStack(path: $path) {
             Form {
                 Section {
                     TextField(text: $model.settings.homeName, prompt: Text(model.homeName)) {
@@ -25,16 +28,14 @@ struct SettingsView: View {
                     }
                     .tint(Theme.amber)
 
-                    NavigationLink {
-                        APISettingsView()
-                    } label: {
+                    NavigationLink(value: SettingsRoute.api) {
                         SettingsRow(symbol: "network", color: Theme.cyan, title: Text("Light server (API)"),
-                                    detail: Text(model.settings.api.isEnabled ? "On" : "Off"))
+                                    detail: Text(model.settings.api.isEnabled
+                                                 ? (model.settings.api.mode == .simpleSwitch ? "On · one device" : "On")
+                                                 : "Off"))
                     }
 
-                    NavigationLink {
-                        HomeKitSettingsView()
-                    } label: {
+                    NavigationLink(value: SettingsRoute.homeKit) {
                         SettingsRow(symbol: "homekit", color: Theme.amber, title: Text("Apple Home"),
                                     detail: Text(model.settings.homeKitEnabled ? "On" : "Off"))
                     }
@@ -43,9 +44,7 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    NavigationLink {
-                        ActivityLogView()
-                    } label: {
+                    NavigationLink(value: SettingsRoute.activity) {
                         SettingsRow(symbol: "clock.arrow.circlepath", color: Theme.cyan, title: Text("Activity"),
                                     detail: Text("\(model.log.entries.count) events"))
                     }
@@ -69,7 +68,25 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(NightBackground())
             .navigationTitle(Text("Settings"))
+            .navigationDestination(for: SettingsRoute.self) { route in
+                switch route {
+                case .api: APISettingsView()
+                case .homeKit: HomeKitSettingsView()
+                case .activity: ActivityLogView()
+                }
+            }
         }
+        #if DEBUG
+        .onAppear {
+            // Screenshot helper: `-openSettings api` launch argument.
+            switch UserDefaults.standard.string(forKey: "openSettings") {
+            case "api": path = [.api]
+            case "homeKit": path = [.homeKit]
+            case "activity": path = [.activity]
+            default: break
+            }
+        }
+        #endif
     }
 }
 
@@ -102,30 +119,85 @@ struct APISettingsView: View {
 
     var body: some View {
         @Bindable var model = model
+        let isSimple = model.settings.api.mode == .simpleSwitch
         Form {
             Section {
                 Toggle("Use light server", isOn: $model.settings.api.isEnabled)
                     .tint(Theme.amber)
+                Picker("Kind", selection: $model.settings.api.mode) {
+                    Text("One on/off device").tag(APIMode.simpleSwitch)
+                    Text("Server with many lights").tag(APIMode.restServer)
+                }
             } footer: {
-                Text("Control lights through your own HTTP server, e.g. an ESP32, Node-RED or Home Assistant bridge. Lights controlled this way can switch on from the background when you arrive.")
+                Text(isSimple
+                     ? "For a single device with fixed on/off endpoints, such as an ESP32 relay on your Wi-Fi."
+                     : "For a server that lists several lights and supports brightness. See API.md in the project.")
             }
 
             Section {
-                TextField(text: $baseURL, prompt: Text(verbatim: "https://home.example.com/api")) {
-                    Text("Server URL")
+                TextField(text: $baseURL, prompt: Text(verbatim: isSimple ? "http://192.168.1.46" : "https://home.example.com/api")) {
+                    Text("Address")
                 }
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .onSubmit(save)
 
-                SecureField(text: $token, prompt: Text("Bearer token (optional)")) {
-                    Text("Token")
+                SecureField(text: $token, prompt: Text(isSimple ? "API key" : "Bearer token (optional)")) {
+                    Text(isSimple ? "API key" : "Token")
                 }
                 .textInputAutocapitalization(.never)
                 .onSubmit(save)
             } header: {
                 Text("Server")
+            } footer: {
+                if isSimple {
+                    Text("The key is sent in the \(model.settings.api.keyHeader) header, and is stored in the iPhone keychain.")
+                }
+            }
+
+            if isSimple {
+                Section {
+                    TextField(text: $model.settings.api.deviceName, prompt: Text("Light")) {
+                        Text("Light name")
+                    }
+                    TextField(text: $model.settings.api.deviceRoom, prompt: Text("Home")) {
+                        Text("Room")
+                    }
+                } header: {
+                    Text("Shown in the app")
+                }
+
+                Section {
+                    LabeledContent("Header") {
+                        TextField(text: $model.settings.api.keyHeader, prompt: Text(verbatim: "X-API-Key")) { Text("Header") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    LabeledContent("Turn on") {
+                        TextField(text: $model.settings.api.onPath, prompt: Text(verbatim: "api/on")) { Text("On path") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    LabeledContent("Turn off") {
+                        TextField(text: $model.settings.api.offPath, prompt: Text(verbatim: "api/off")) { Text("Off path") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    LabeledContent("Status") {
+                        TextField(text: $model.settings.api.statusPath, prompt: Text(verbatim: "api/status")) { Text("Status path") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                } header: {
+                    Text("Endpoints")
+                } footer: {
+                    Text("POST for on and off, GET for status, which should reply { \"on\": true }.")
+                }
             }
 
             Section {
@@ -144,7 +216,7 @@ struct APISettingsView: View {
                     switch testResult {
                     case .success(let count):
                         Label {
-                            Text("Connected · found \(count) lights")
+                            Text(isSimple ? String(localized: "Connected to the device") : String(localized: "Connected · found \(count) lights"))
                         } icon: {
                             Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.mint)
                         }
@@ -156,20 +228,8 @@ struct APISettingsView: View {
                         }
                     }
                 }
-            }
-
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(verbatim: "GET   /lights")
-                    Text(verbatim: "PATCH /lights/{id}")
-                    Text(verbatim: "{ \"on\": true, \"brightness\": 80 }")
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                .font(.system(.footnote, design: .monospaced))
-            } header: {
-                Text("API format")
             } footer: {
-                Text("Each light: id, name, room, on, brightness (0–100). Full details are in API.md in the project.")
+                Text("On a home Wi-Fi address, iOS asks for local network permission the first time.")
             }
         }
         .scrollContentBackground(.hidden)

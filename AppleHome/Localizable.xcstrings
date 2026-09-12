@@ -163,12 +163,12 @@
         }
       }
     },
-    "API format": {
+    "API key": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "รูปแบบ API"
+            "value": "API key"
           }
         }
       }
@@ -199,6 +199,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "กรุณาใส่ URL ของเซิร์ฟเวอร์ในหน้าตั้งค่าก่อน"
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ที่อยู่"
           }
         }
       }
@@ -531,6 +541,16 @@
         }
       }
     },
+    "Connected to the device": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่ออุปกรณ์ได้แล้ว"
+          }
+        }
+      }
+    },
     "Connected · found %lld lights": {
       "localizations": {
         "en": {
@@ -585,16 +605,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "ดำเนินการต่อ"
-          }
-        }
-      }
-    },
-    "Control lights through your own HTTP server, e.g. an ESP32, Node-RED or Home Assistant bridge. Lights controlled this way can switch on from the background when you arrive.": {
-      "localizations": {
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ควบคุมไฟผ่านเซิร์ฟเวอร์ HTTP ของคุณเอง เช่น ESP32, Node-RED หรือ Home Assistant ไฟที่ต่อแบบนี้เปิดเองได้แม้แอปทำงานเบื้องหลังตอนคุณถึงบ้าน"
           }
         }
       }
@@ -669,12 +679,12 @@
         }
       }
     },
-    "Each light: id, name, room, on, brightness (0–100). Full details are in API.md in the project.": {
+    "Endpoints": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ไฟแต่ละดวงมี id, name, room, on, brightness (0–100) ดูรายละเอียดทั้งหมดได้ในไฟล์ API.md ของโปรเจกต์"
+            "value": "ปลายทาง (Endpoints)"
           }
         }
       }
@@ -685,6 +695,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "โคมไฟตั้งพื้น"
+          }
+        }
+      }
+    },
+    "For a server that lists several lights and supports brightness. See API.md in the project.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สำหรับเซิร์ฟเวอร์ที่มีไฟหลายดวงและปรับความสว่างได้ ดูรายละเอียดในไฟล์ API.md ของโปรเจกต์"
+          }
+        }
+      }
+    },
+    "For a single device with fixed on/off endpoints, such as an ESP32 relay on your Wi-Fi.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สำหรับอุปกรณ์ตัวเดียวที่มี endpoint เปิด/ปิดตายตัว เช่น ESP32 ที่ต่อรีเลย์อยู่ใน Wi-Fi บ้าน"
           }
         }
       }
@@ -729,6 +759,16 @@
         }
       }
     },
+    "Header": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Header"
+          }
+        }
+      }
+    },
     "Home": {
       "localizations": {
         "th": {
@@ -769,6 +809,16 @@
         }
       }
     },
+    "Kind": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ประเภท"
+          }
+        }
+      }
+    },
     "Kitchen": {
       "localizations": {
         "th": {
@@ -795,6 +845,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "ออกจากบ้าน"
+          }
+        }
+      }
+    },
+    "Light": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟ"
+          }
+        }
+      }
+    },
+    "Light name": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อไฟ"
           }
         }
       }
@@ -979,6 +1049,16 @@
         }
       }
     },
+    "Off path": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พาธสำหรับปิด"
+          }
+        }
+      }
+    },
     "On": {
       "localizations": {
         "th": {
@@ -989,12 +1069,52 @@
         }
       }
     },
+    "On a home Wi-Fi address, iOS asks for local network permission the first time.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถ้าเป็นที่อยู่ใน Wi-Fi บ้าน iOS จะขออนุญาตเข้าถึงเครือข่ายภายในในครั้งแรก"
+          }
+        }
+      }
+    },
+    "On path": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พาธสำหรับเปิด"
+          }
+        }
+      }
+    },
     "On · %@ around home": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
             "value": "เปิดอยู่ · รัศมี %@ รอบบ้าน"
+          }
+        }
+      }
+    },
+    "On · one device": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดอยู่ · อุปกรณ์เดียว"
+          }
+        }
+      }
+    },
+    "One on/off device": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อุปกรณ์เปิด/ปิดตัวเดียว"
           }
         }
       }
@@ -1035,6 +1155,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "อื่นๆ"
+          }
+        }
+      }
+    },
+    "POST for on and off, GET for status, which should reply { \"on\": true }.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้ POST สำหรับเปิดและปิด ใช้ GET สำหรับอ่านสถานะ ซึ่งควรตอบกลับเป็น { \"on\": true }"
           }
         }
       }
@@ -1099,6 +1229,16 @@
         }
       }
     },
+    "Room": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ห้อง"
+          }
+        }
+      }
+    },
     "Runs the same actions right away, so you can check which lights respond.": {
       "localizations": {
         "th": {
@@ -1139,12 +1279,12 @@
         }
       }
     },
-    "Server URL": {
+    "Server with many lights": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "URL เซิร์ฟเวอร์"
+            "value": "เซิร์ฟเวอร์ที่มีไฟหลายดวง"
           }
         }
       }
@@ -1165,6 +1305,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ตั้งค่า"
+          }
+        }
+      }
+    },
+    "Shown in the app": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อที่แสดงในแอป"
           }
         }
       }
@@ -1195,6 +1345,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "สถานะ"
+          }
+        }
+      }
+    },
+    "Status path": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พาธสำหรับสถานะ"
           }
         }
       }
@@ -1255,6 +1415,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "บันทึกระบบอัตโนมัติแล้ว แต่จะทำงานได้เมื่อมี Home Hub (Apple TV หรือ HomePod) อยู่ที่บ้านเท่านั้น"
+          }
+        }
+      }
+    },
+    "The key is sent in the %@ header, and is stored in the iPhone keychain.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ระบบจะส่ง key ไปใน header ชื่อ %@ และเก็บไว้ใน keychain ของ iPhone"
           }
         }
       }

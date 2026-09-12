@@ -1,7 +1,14 @@
 import Foundation
 import Security
 
-/// REST client for a user-supplied light server. Contract (see API.md at the repo root):
+/// Talks to a user-supplied light server in one of two shapes:
+///
+/// - `.restServer`: many lights (see API.md at the repo root)
+/// - `.simpleSwitch`: one device with fixed on/off endpoints, e.g. an ESP32 relay:
+///   `POST {base}/api/on`, `POST {base}/api/off`, `GET {base}/api/status` -> `{"on": true}`,
+///   authenticated with a custom header such as `X-API-Key`.
+///
+/// REST contract:
 ///
 ///     GET   {base}/lights          -> [LightDTO]  or  { "lights": [LightDTO] }
 ///     PATCH {base}/lights/{id}     body { "on": Bool?, "brightness": 0-100? } -> LightDTO
@@ -31,7 +38,11 @@ final class APILightProvider: LightProvider {
 
     private struct Envelope: Codable { var lights: [LightDTO] }
 
+    /// The single light id used in simple-switch mode.
+    static let switchID = "device"
+
     func loadLights() async throws -> [Light] {
+        guard configuration.mode == .restServer else { return [try await loadSwitch()] }
         let data = try await send("lights", method: "GET")
         let decoder = JSONDecoder()
         let dtos: [LightDTO]
@@ -56,13 +67,62 @@ final class APILightProvider: LightProvider {
         }
     }
 
+    private func loadSwitch() async throws -> Light {
+        let data = try await sendRetrying(configuration.statusPath, method: "GET")
+        guard let isOn = Self.parseOnState(data) else { throw APIError.decoding }
+        return Light(
+            remoteID: Self.switchID,
+            source: .api,
+            name: configuration.deviceName.isEmpty ? String(localized: "Light") : configuration.deviceName,
+            room: configuration.deviceRoom.isEmpty ? String(localized: "Home") : configuration.deviceRoom,
+            kind: .bulb,
+            isOn: isOn,
+            // No dimming on this device: full brightness keeps the card, bar and 3D glow honest.
+            brightness: 1,
+            supportsBrightness: false
+        )
+    }
+
     func setPower(_ isOn: Bool, remoteID: String) async throws {
+        guard configuration.mode == .restServer else {
+            _ = try await sendRetrying(isOn ? configuration.onPath : configuration.offPath, method: "POST")
+            return
+        }
         _ = try await send("lights/\(escaped(remoteID))", method: "PATCH", body: ["on": isOn])
     }
 
     func setBrightness(_ value: Double, remoteID: String) async throws {
+        guard configuration.mode == .restServer else {
+            try await setPower(value > 0, remoteID: remoteID)
+            return
+        }
         let percent = Int((value * 100).rounded())
         _ = try await send("lights/\(escaped(remoteID))", method: "PATCH", body: ["on": percent > 0, "brightness": percent])
+    }
+
+    /// `{"on": true}`, and the common variants, without ever guessing a state.
+    static func parseOnState(_ data: Data) -> Bool? {
+        guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        for key in ["on", "state", "power", "status"] {
+            switch object[key] {
+            case let value as Bool: return value
+            case let value as NSNumber: return value.boolValue
+            case let value as String: return ["on", "true", "1"].contains(value.lowercased())
+            default: continue
+            }
+        }
+        return nil
+    }
+
+    /// The ESP often drops the first connection after idling, and a background arrival
+    /// only gets one chance, so retry a network failure once.
+    private func sendRetrying(_ path: String, method: String) async throws -> Data {
+        do {
+            return try await send(path, method: method)
+        } catch APIError.network {
+            try? await Task.sleep(for: .seconds(1))
+            return try await send(path, method: method)
+        }
     }
 
     /// Used by the settings screen: returns how many lights the server reports.
@@ -78,7 +138,10 @@ final class APILightProvider: LightProvider {
         var base = configuration.baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !base.isEmpty else { throw APIError.notConfigured }
         while base.hasSuffix("/") { base.removeLast() }
-        guard let url = URL(string: "\(base)/\(path)"), url.scheme?.hasPrefix("http") == true else {
+        // A double slash is a 404 on small embedded servers, not a redirect.
+        let route = path.hasPrefix("/") ? String(path.dropFirst()) : path
+        guard let url = URL(string: route.isEmpty ? base : "\(base)/\(route)"),
+              url.scheme?.hasPrefix("http") == true else {
             throw APIError.invalidURL
         }
 
@@ -86,7 +149,13 @@ final class APILightProvider: LightProvider {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let token = Keychain.apiToken, !token.isEmpty {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            switch configuration.mode {
+            case .restServer:
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            case .simpleSwitch:
+                let header = configuration.keyHeader.isEmpty ? "X-API-Key" : configuration.keyHeader
+                request.setValue(token, forHTTPHeaderField: header)
+            }
         }
         if let body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
