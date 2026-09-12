@@ -53,7 +53,9 @@ struct LightDetailSheet: View {
 
             Spacer(minLength: 20)
 
-            Text(light.isOn ? "\(light.percent)%" : String(localized: "Off"))
+            Text(light.isOn
+                 ? (light.supportsBrightness ? "\(light.percent)%" : String(localized: "On"))
+                 : String(localized: "Off"))
                 .font(.numeric(52, weight: .bold))
                 .foregroundStyle(light.isOn ? Theme.amber : Theme.textSecondary)
                 .contentTransition(.numericText(value: Double(light.percent)))

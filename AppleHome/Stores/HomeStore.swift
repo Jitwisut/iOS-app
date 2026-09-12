@@ -125,14 +125,28 @@ final class HomeStore {
     /// Runs an arrival/departure action. HomeKit lights are skipped unless `includeHomeKit`,
     /// because the home hub runs those from the Apple Home automation.
     func runAutomation(isOn: Bool, lightIDs: Set<String>, includeHomeKit: Bool) async -> AutomationResult {
-        if lights.isEmpty { await refresh() }
-        let candidates: [(source: LightSource, remoteID: String)] = lightIDs.isEmpty
-            ? lights.map { ($0.source, $0.remoteID) }
-            : lightIDs.compactMap(Light.parse)
-        let enabled = candidates.filter { enabledSources.contains($0.source) }
+        var candidates: [(source: LightSource, remoteID: String)]
+        let selectedSources: Set<LightSource>
+        if lightIDs.isEmpty {
+            if lights.isEmpty { await refresh() }
+            candidates = lights.map { ($0.source, $0.remoteID) }
+            selectedSources = enabledSources
+        } else {
+            candidates = lightIDs.compactMap(Light.parse)
+            selectedSources = Set(candidates.map(\.source))
+        }
+        candidates = candidates.filter { enabledSources.contains($0.source) }
+
+        // A provider that always addresses the same device needs no list, so an arrival
+        // still works when the status read failed — which is common on sleepy hardware.
+        for source in enabledSources where selectedSources.contains(source) {
+            guard let direct = providers[source]?.directTargets, !direct.isEmpty else { continue }
+            candidates.removeAll { $0.source == source }
+            candidates += direct.map { (source, $0) }
+        }
 
         var result = AutomationResult()
-        for target in enabled {
+        for target in candidates {
             if target.source == .homeKit && !includeHomeKit {
                 result.leftToHomeKit += 1
                 continue

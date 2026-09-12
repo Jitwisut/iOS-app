@@ -41,6 +41,8 @@ final class APILightProvider: LightProvider {
     /// The single light id used in simple-switch mode.
     static let switchID = "device"
 
+    var directTargets: [String] { configuration.mode == .simpleSwitch ? [Self.switchID] : [] }
+
     func loadLights() async throws -> [Light] {
         guard configuration.mode == .restServer else { return [try await loadSwitch()] }
         let data = try await send("lights", method: "GET")

@@ -7,6 +7,13 @@ protocol LightProvider: AnyObject {
     func loadLights() async throws -> [Light]
     func setPower(_ isOn: Bool, remoteID: String) async throws
     func setBrightness(_ value: Double, remoteID: String) async throws
+    /// Lights this provider can switch without listing anything first. A background
+    /// arrival has no loaded lights, and must not depend on a status read succeeding.
+    var directTargets: [String] { get }
+}
+
+extension LightProvider {
+    var directTargets: [String] { [] }
 }
 
 final class DemoLightProvider: LightProvider {
