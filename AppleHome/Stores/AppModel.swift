@@ -50,6 +50,7 @@ final class AppModel {
         // Testing helpers, never compiled into a release build. JSON is passed base64-encoded
         // because UserDefaults silently drops launch arguments that start with "{".
         //   -seedAPIKey <key>            writes the keychain, which `defaults` can't reach
+        //   -seedMQTTPassword <pw>       writes the MQTT password to the keychain
         //   -seedSettings <base64 json>  replaces the stored app settings
         //   -seedArrival  <base64 json>  replaces the stored arrival settings
         func seededJSON(_ key: String) -> Data? {
@@ -59,11 +60,29 @@ final class AppModel {
         if let seeded = UserDefaults.standard.string(forKey: "seedAPIKey"), !seeded.isEmpty {
             Keychain.apiToken = seeded
         }
+        if let seeded = UserDefaults.standard.string(forKey: "seedMQTTPassword"), !seeded.isEmpty {
+            Keychain.mqttPassword = seeded
+        }
         if let data = seededJSON("seedSettings"), let decoded = try? JSONDecoder().decode(AppSettings.self, from: data) {
             self.settings = decoded
         }
         if let data = seededJSON("seedArrival"), let decoded = try? JSONDecoder().decode(ArrivalSettings.self, from: data) {
             arrival.settings = decoded
+        }
+        // -debugSetPower on|off: exercises the exact setPower(_:remoteID:) path a tap on the
+        // light card would, without needing simulator UI automation.
+        if let power = UserDefaults.standard.string(forKey: "debugSetPower") {
+            let isOn = power.lowercased() == "on"
+            let api = self.api
+            geofenceLog.info("debugSetPower requested: \(power, privacy: .public)")
+            Task {
+                do {
+                    try await api.setPower(isOn, remoteID: APILightProvider.switchID)
+                    geofenceLog.info("debugSetPower \(isOn, privacy: .public): succeeded")
+                } catch {
+                    geofenceLog.error("debugSetPower \(isOn, privacy: .public): failed \(error.localizedDescription, privacy: .public)")
+                }
+            }
         }
         geofenceLog.info("settings loaded: demo=\(self.settings.demoEnabled), api=\(self.settings.api.isEnabled), mode=\(self.settings.api.mode.rawValue, privacy: .public), base=\(self.settings.api.baseURL, privacy: .public)")
         #endif

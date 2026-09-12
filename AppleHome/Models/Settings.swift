@@ -41,6 +41,9 @@ enum APIMode: String, Codable, CaseIterable, Sendable {
     case restServer
     /// One device with fixed on/off endpoints, e.g. an ESP32 relay.
     case simpleSwitch
+    /// One device switched by publishing to an MQTT broker (e.g. HiveMQ Cloud),
+    /// rather than calling HTTP endpoints directly.
+    case mqttSwitch
 }
 
 struct APIConfiguration: Codable, Equatable, Sendable {
@@ -54,6 +57,13 @@ struct APIConfiguration: Codable, Equatable, Sendable {
     var statusPath = "api/status"
     var deviceName = ""
     var deviceRoom = ""
+    /// MQTT-switch settings. The password lives in the keychain, like the API key.
+    var mqttHost = ""
+    var mqttPort = 8883
+    var mqttUsername = ""
+    var commandTopic = ""
+    var stateTopic = ""
+    var availabilityTopic = ""
 
     init() {}
 
@@ -69,6 +79,12 @@ struct APIConfiguration: Codable, Equatable, Sendable {
         statusPath = try c.decodeIfPresent(String.self, forKey: .statusPath) ?? "api/status"
         deviceName = try c.decodeIfPresent(String.self, forKey: .deviceName) ?? ""
         deviceRoom = try c.decodeIfPresent(String.self, forKey: .deviceRoom) ?? ""
+        mqttHost = try c.decodeIfPresent(String.self, forKey: .mqttHost) ?? ""
+        mqttPort = try c.decodeIfPresent(Int.self, forKey: .mqttPort) ?? 8883
+        mqttUsername = try c.decodeIfPresent(String.self, forKey: .mqttUsername) ?? ""
+        commandTopic = try c.decodeIfPresent(String.self, forKey: .commandTopic) ?? ""
+        stateTopic = try c.decodeIfPresent(String.self, forKey: .stateTopic) ?? ""
+        availabilityTopic = try c.decodeIfPresent(String.self, forKey: .availabilityTopic) ?? ""
     }
 }
 

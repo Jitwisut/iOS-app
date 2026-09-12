@@ -31,7 +31,7 @@ struct SettingsView: View {
                     NavigationLink(value: SettingsRoute.api) {
                         SettingsRow(symbol: "network", color: Theme.cyan, title: Text("Light server (API)"),
                                     detail: Text(model.settings.api.isEnabled
-                                                 ? (model.settings.api.mode == .simpleSwitch ? "On · one device" : "On")
+                                                 ? ([.simpleSwitch, .mqttSwitch].contains(model.settings.api.mode) ? "On · one device" : "On")
                                                  : "Off"))
                     }
 
@@ -114,49 +114,89 @@ struct APISettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var baseURL = ""
     @State private var token = ""
+    @State private var mqttHost = ""
+    @State private var mqttPassword = ""
     @State private var testing = false
     @State private var testResult: Result<Int, Error>?
 
     var body: some View {
         @Bindable var model = model
-        let isSimple = model.settings.api.mode == .simpleSwitch
+        let mode = model.settings.api.mode
+        // HTTP and MQTT single-device modes share the "one light" fields below;
+        // only the connection and endpoint sections differ per mode.
+        let isSingleDevice = mode == .simpleSwitch || mode == .mqttSwitch
+        let isHTTP = mode == .simpleSwitch
+        let isMQTT = mode == .mqttSwitch
         Form {
             Section {
                 Toggle("Use light server", isOn: $model.settings.api.isEnabled)
                     .tint(Theme.amber)
                 Picker("Kind", selection: $model.settings.api.mode) {
-                    Text("One on/off device").tag(APIMode.simpleSwitch)
+                    Text("One on/off device (HTTP)").tag(APIMode.simpleSwitch)
+                    Text("One on/off device (MQTT)").tag(APIMode.mqttSwitch)
                     Text("Server with many lights").tag(APIMode.restServer)
                 }
             } footer: {
-                Text(isSimple
+                Text(isHTTP
                      ? "For a single device with fixed on/off endpoints, such as an ESP32 relay on your Wi-Fi."
+                     : isMQTT
+                     ? "For a single device switched by publishing to an MQTT broker, such as an ESP relay connected to HiveMQ Cloud."
                      : "For a server that lists several lights and supports brightness. See API.md in the project.")
             }
 
-            Section {
-                TextField(text: $baseURL, prompt: Text(verbatim: isSimple ? "http://192.168.1.46" : "https://home.example.com/api")) {
-                    Text("Address")
-                }
-                .keyboardType(.URL)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .onSubmit(save)
+            if isMQTT {
+                Section {
+                    TextField(text: $mqttHost, prompt: Text(verbatim: "xxxxxxxx.s1.eu.hivemq.cloud")) {
+                        Text("Broker")
+                    }
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .onSubmit(save)
 
-                SecureField(text: $token, prompt: Text(isSimple ? "API key" : "Bearer token (optional)")) {
-                    Text(isSimple ? "API key" : "Token")
+                    TextField("Port", value: $model.settings.api.mqttPort, format: .number)
+                        .keyboardType(.numberPad)
+
+                    TextField(text: $model.settings.api.mqttUsername, prompt: Text(verbatim: "tan")) {
+                        Text("Username")
+                    }
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                    SecureField(text: $mqttPassword, prompt: Text("Password")) {
+                        Text("Password")
+                    }
+                    .onSubmit(save)
+                } header: {
+                    Text("Server")
+                } footer: {
+                    Text("The password is stored in the iPhone keychain. The connection uses TLS.")
                 }
-                .textInputAutocapitalization(.never)
-                .onSubmit(save)
-            } header: {
-                Text("Server")
-            } footer: {
-                if isSimple {
-                    Text("The key is sent in the \(model.settings.api.keyHeader) header, and is stored in the iPhone keychain.")
+            } else {
+                Section {
+                    TextField(text: $baseURL, prompt: Text(verbatim: isHTTP ? "http://192.168.1.46" : "https://home.example.com/api")) {
+                        Text("Address")
+                    }
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .onSubmit(save)
+
+                    SecureField(text: $token, prompt: Text(isHTTP ? "API key" : "Bearer token (optional)")) {
+                        Text(isHTTP ? "API key" : "Token")
+                    }
+                    .textInputAutocapitalization(.never)
+                    .onSubmit(save)
+                } header: {
+                    Text("Server")
+                } footer: {
+                    if isHTTP {
+                        Text("The key is sent in the \(model.settings.api.keyHeader) header, and is stored in the iPhone keychain.")
+                    }
                 }
             }
 
-            if isSimple {
+            if isSingleDevice {
                 Section {
                     TextField(text: $model.settings.api.deviceName, prompt: Text("Light")) {
                         Text("Light name")
@@ -167,7 +207,9 @@ struct APISettingsView: View {
                 } header: {
                     Text("Shown in the app")
                 }
+            }
 
+            if isHTTP {
                 Section {
                     LabeledContent("Header") {
                         TextField(text: $model.settings.api.keyHeader, prompt: Text(verbatim: "X-API-Key")) { Text("Header") }
@@ -200,6 +242,33 @@ struct APISettingsView: View {
                 }
             }
 
+            if isMQTT {
+                Section {
+                    LabeledContent("Command") {
+                        TextField(text: $model.settings.api.commandTopic, prompt: Text(verbatim: "home/esp01/switch/set")) { Text("Command topic") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    LabeledContent("State") {
+                        TextField(text: $model.settings.api.stateTopic, prompt: Text(verbatim: "home/esp01/switch/state")) { Text("State topic") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    LabeledContent("Availability") {
+                        TextField(text: $model.settings.api.availabilityTopic, prompt: Text(verbatim: "home/esp01/switch/availability")) { Text("Availability topic") }
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                } header: {
+                    Text("Topics")
+                } footer: {
+                    Text("The app publishes ON/OFF to Command. State and availability are retained messages the device publishes; availability is optional.")
+                }
+            }
+
             Section {
                 Button {
                     test()
@@ -210,13 +279,13 @@ struct APISettingsView: View {
                         if testing { ProgressView() }
                     }
                 }
-                .disabled(testing || baseURL.isEmpty)
+                .disabled(testing || (isMQTT ? mqttHost.isEmpty : baseURL.isEmpty))
 
                 if let testResult {
                     switch testResult {
                     case .success(let count):
                         Label {
-                            Text(isSimple ? String(localized: "Connected to the device") : String(localized: "Connected · found \(count) lights"))
+                            Text(isSingleDevice ? String(localized: "Connected to the device") : String(localized: "Connected · found \(count) lights"))
                         } icon: {
                             Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.mint)
                         }
@@ -229,7 +298,9 @@ struct APISettingsView: View {
                     }
                 }
             } footer: {
-                Text("On a home Wi-Fi address, iOS asks for local network permission the first time.")
+                Text(isMQTT
+                     ? "Connects to your broker over the internet, so no local network permission is needed."
+                     : "On a home Wi-Fi address, iOS asks for local network permission the first time.")
             }
         }
         .scrollContentBackground(.hidden)
@@ -239,6 +310,8 @@ struct APISettingsView: View {
         .onAppear {
             baseURL = model.settings.api.baseURL
             token = Keychain.apiToken ?? ""
+            mqttHost = model.settings.api.mqttHost
+            mqttPassword = Keychain.mqttPassword ?? ""
         }
         .onDisappear(perform: save)
     }
@@ -246,6 +319,8 @@ struct APISettingsView: View {
     private func save() {
         Keychain.apiToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
         model.settings.api.baseURL = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        Keychain.mqttPassword = mqttPassword.trimmingCharacters(in: .whitespacesAndNewlines)
+        model.settings.api.mqttHost = mqttHost.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func test() {

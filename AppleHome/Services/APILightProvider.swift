@@ -1,12 +1,16 @@
 import Foundation
 import Security
+import CocoaMQTT
 
-/// Talks to a user-supplied light server in one of two shapes:
+/// Talks to a user-supplied light server in one of three shapes:
 ///
 /// - `.restServer`: many lights (see API.md at the repo root)
 /// - `.simpleSwitch`: one device with fixed on/off endpoints, e.g. an ESP32 relay:
 ///   `POST {base}/api/on`, `POST {base}/api/off`, `GET {base}/api/status` -> `{"on": true}`,
 ///   authenticated with a custom header such as `X-API-Key`.
+/// - `.mqttSwitch`: one device switched by publishing "ON"/"OFF" to an MQTT broker
+///   (e.g. HiveMQ Cloud over TLS) instead of calling HTTP endpoints. See the MQTT
+///   section below.
 ///
 /// REST contract:
 ///
@@ -14,9 +18,19 @@ import Security
 ///     PATCH {base}/lights/{id}     body { "on": Bool?, "brightness": 0-100? } -> LightDTO
 ///
 /// Optional `Authorization: Bearer <token>` header.
-final class APILightProvider: LightProvider {
+final class APILightProvider: NSObject, LightProvider {
     let source = LightSource.api
-    var configuration: APIConfiguration
+    var configuration: APIConfiguration {
+        didSet {
+            guard configuration != oldValue else { return }
+            // A live MQTT session is only worth keeping if it still points at the same
+            // broker/account; anything else (including leaving MQTT mode) tears it down
+            // so the next call reconnects with the current settings.
+            if configuration.mode != .mqttSwitch || mqttIdentity(configuration) != mqttIdentity(oldValue) {
+                disconnectMQTT()
+            }
+        }
+    }
     private let session: URLSession
 
     init(configuration: APIConfiguration) {
@@ -25,6 +39,7 @@ final class APILightProvider: LightProvider {
         config.timeoutIntervalForRequest = 8
         config.waitsForConnectivity = false
         session = URLSession(configuration: config)
+        super.init()
     }
 
     struct LightDTO: Codable {
@@ -38,13 +53,19 @@ final class APILightProvider: LightProvider {
 
     private struct Envelope: Codable { var lights: [LightDTO] }
 
-    /// The single light id used in simple-switch mode.
+    /// The single light id used in simple-switch and MQTT-switch mode.
     static let switchID = "device"
 
-    var directTargets: [String] { configuration.mode == .simpleSwitch ? [Self.switchID] : [] }
+    var directTargets: [String] {
+        [.simpleSwitch, .mqttSwitch].contains(configuration.mode) ? [Self.switchID] : []
+    }
 
     func loadLights() async throws -> [Light] {
-        guard configuration.mode == .restServer else { return [try await loadSwitch()] }
+        switch configuration.mode {
+        case .simpleSwitch: return [try await loadSwitch()]
+        case .mqttSwitch: return [try await loadMQTTSwitch()]
+        case .restServer: break
+        }
         let data = try await send("lights", method: "GET")
         let decoder = JSONDecoder()
         let dtos: [LightDTO]
@@ -85,12 +106,211 @@ final class APILightProvider: LightProvider {
         )
     }
 
-    func setPower(_ isOn: Bool, remoteID: String) async throws {
-        guard configuration.mode == .restServer else {
-            _ = try await sendRetrying(isOn ? configuration.onPath : configuration.offPath, method: "POST")
-            return
+    // MARK: - MQTT
+
+    /// One MQTT client per provider instance, reused across calls while it stays connected.
+    /// State/availability are retained broker messages, so `directTargets` lets an arrival
+    /// publish the command straight away instead of waiting on a status readback first.
+    private let mqttClientID = "AppleHome-\(UUID().uuidString.prefix(8))"
+    private var mqttClient: CocoaMQTT?
+    private var mqttHasSubscribed = false
+    private var mqttLastOnState: Bool?
+    private let mqttLock = NSLock()
+    private var mqttConnectWaiters: [UUID: (Result<Void, Error>) -> Void] = [:]
+    private var mqttPublishWaiters: [UInt16: (Result<Void, Error>) -> Void] = [:]
+    private var mqttStateWaiters: [UUID: (Bool?) -> Void] = [:]
+
+    /// What identifies "the same broker session" across a settings edit. The password
+    /// lives in the keychain, not here, so a password-only change is handled by
+    /// `testConnection()` forcing a fresh connection instead.
+    private func mqttIdentity(_ c: APIConfiguration) -> String {
+        "\(c.mqttHost)|\(c.mqttPort)|\(c.mqttUsername)"
+    }
+
+    private func loadMQTTSwitch() async throws -> Light {
+        let isOn = try await mqttCurrentState()
+        return Light(
+            remoteID: Self.switchID,
+            source: .api,
+            name: configuration.deviceName.isEmpty ? String(localized: "Light") : configuration.deviceName,
+            room: configuration.deviceRoom.isEmpty ? String(localized: "Home") : configuration.deviceRoom,
+            kind: .bulb,
+            isOn: isOn,
+            brightness: 1,
+            supportsBrightness: false
+        )
+    }
+
+    private func mqttSetPower(_ isOn: Bool) async throws {
+        try await mqttEnsureConnected()
+        let topic = configuration.commandTopic.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !topic.isEmpty else { throw APIError.notConfigured }
+        guard let client = mqttClient else { throw APIError.network("MQTT client isn't connected.") }
+
+        let id = client.publish(topic, withString: isOn ? "ON" : "OFF", qos: .qos1, retained: false)
+        guard id >= 0 else { throw APIError.network("The MQTT publish queue is full.") }
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            registerMQTTPublishWaiter(id: UInt16(id), timeout: 8) { cont.resume(with: $0) }
         }
-        _ = try await send("lights/\(escaped(remoteID))", method: "PATCH", body: ["on": isOn])
+    }
+
+    private func mqttCurrentState(timeout: TimeInterval = 6) async throws -> Bool {
+        try await mqttEnsureConnected()
+        mqttSubscribeIfNeeded()
+
+        mqttLock.lock()
+        let cached = mqttLastOnState
+        mqttLock.unlock()
+        if let cached { return cached }
+
+        return try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Bool, Error>) in
+            let waiterID = UUID()
+            var resumed = false
+            let resume: (Bool?) -> Void = { value in
+                guard !resumed else { return }
+                resumed = true
+                if let value { cont.resume(returning: value) }
+                else { cont.resume(throwing: APIError.network("No response from the device")) }
+            }
+            mqttLock.lock()
+            mqttStateWaiters[waiterID] = resume
+            mqttLock.unlock()
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
+                self?.mqttLock.lock()
+                self?.mqttStateWaiters.removeValue(forKey: waiterID)
+                self?.mqttLock.unlock()
+                resume(nil)
+            }
+        }
+    }
+
+    /// Subscribes once per live connection; retained messages arrive right after SUBACK.
+    private func mqttSubscribeIfNeeded() {
+        mqttLock.lock()
+        defer { mqttLock.unlock() }
+        guard !mqttHasSubscribed, let client = mqttClient else { return }
+        var topics: [(String, CocoaMQTTQoS)] = []
+        let state = configuration.stateTopic.trimmingCharacters(in: .whitespacesAndNewlines)
+        let availability = configuration.availabilityTopic.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !state.isEmpty { topics.append((state, .qos1)) }
+        if !availability.isEmpty { topics.append((availability, .qos1)) }
+        guard !topics.isEmpty else { return }
+        mqttHasSubscribed = true
+        client.subscribe(topics)
+    }
+
+    private func registerMQTTPublishWaiter(id: UInt16, timeout: TimeInterval, completion: @escaping (Result<Void, Error>) -> Void) {
+        mqttLock.lock()
+        var resumed = false
+        mqttPublishWaiters[id] = { result in
+            guard !resumed else { return }
+            resumed = true
+            completion(result)
+        }
+        mqttLock.unlock()
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
+            guard let self else { return }
+            self.mqttLock.lock()
+            let waiter = self.mqttPublishWaiters.removeValue(forKey: id)
+            self.mqttLock.unlock()
+            waiter?(.failure(APIError.network("The MQTT publish timed out.")))
+        }
+    }
+
+    /// Reuses a connected client, waits out one already connecting, or opens a new one —
+    /// then blocks until CONNACK (or a timeout) so callers never publish on a dead socket.
+    private func mqttEnsureConnected() async throws {
+        guard configuration.mode == .mqttSwitch else { throw APIError.notConfigured }
+        let host = configuration.mqttHost.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !host.isEmpty else { throw APIError.notConfigured }
+
+        if let client = mqttClient, client.connState == .connected { return }
+
+        mqttLock.lock()
+        let shouldConnect: Bool
+        let client: CocoaMQTT
+        if let existing = mqttClient, existing.connState == .connecting {
+            client = existing
+            shouldConnect = false
+        } else {
+            client = makeMQTTClient(host: host)
+            mqttClient = client
+            mqttHasSubscribed = false
+            mqttLastOnState = nil
+            shouldConnect = true
+        }
+        mqttLock.unlock()
+
+        if shouldConnect {
+            guard client.connect(timeout: 8) else { throw APIError.network("Couldn't start the MQTT connection.") }
+        }
+
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            let waiterID = UUID()
+            var resumed = false
+            let resume: (Result<Void, Error>) -> Void = { result in
+                guard !resumed else { return }
+                resumed = true
+                cont.resume(with: result)
+            }
+            mqttLock.lock()
+            mqttConnectWaiters[waiterID] = resume
+            mqttLock.unlock()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) { [weak self] in
+                guard let self else { return }
+                self.mqttLock.lock()
+                let stillPending = self.mqttConnectWaiters.removeValue(forKey: waiterID) != nil
+                self.mqttLock.unlock()
+                if stillPending { resume(.failure(APIError.network("The MQTT connection timed out."))) }
+            }
+        }
+    }
+
+    private func makeMQTTClient(host: String) -> CocoaMQTT {
+        let client = CocoaMQTT(clientID: mqttClientID, host: host, port: UInt16(clamping: configuration.mqttPort))
+        client.username = configuration.mqttUsername.isEmpty ? nil : configuration.mqttUsername
+        client.password = Keychain.mqttPassword
+        client.enableSSL = true
+        client.cleanSession = true
+        client.keepAlive = 30
+        client.autoReconnect = false
+        client.delegate = self
+        return client
+    }
+
+    private func disconnectMQTT() {
+        mqttLock.lock()
+        let client = mqttClient
+        mqttClient = nil
+        mqttHasSubscribed = false
+        mqttLastOnState = nil
+        let connectWaiters = mqttConnectWaiters; mqttConnectWaiters = [:]
+        let publishWaiters = mqttPublishWaiters; mqttPublishWaiters = [:]
+        mqttLock.unlock()
+        client?.disconnect()
+        let error = APIError.network("MQTT disconnected")
+        connectWaiters.values.forEach { $0(.failure(error)) }
+        publishWaiters.values.forEach { $0(.failure(error)) }
+    }
+
+    /// "ON"/"1"/"TRUE" and "OFF"/"0"/"FALSE", case-insensitively — matches the ESP firmware.
+    static func parseMQTTBool(_ raw: String) -> Bool? {
+        switch raw.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() {
+        case "ON", "1", "TRUE": return true
+        case "OFF", "0", "FALSE": return false
+        default: return nil
+        }
+    }
+
+    func setPower(_ isOn: Bool, remoteID: String) async throws {
+        switch configuration.mode {
+        case .simpleSwitch:
+            _ = try await sendRetrying(isOn ? configuration.onPath : configuration.offPath, method: "POST")
+        case .mqttSwitch:
+            try await mqttSetPower(isOn)
+        case .restServer:
+            _ = try await send("lights/\(escaped(remoteID))", method: "PATCH", body: ["on": isOn])
+        }
     }
 
     func setBrightness(_ value: Double, remoteID: String) async throws {
@@ -129,7 +349,10 @@ final class APILightProvider: LightProvider {
 
     /// Used by the settings screen: returns how many lights the server reports.
     func testConnection() async throws -> Int {
-        try await loadLights().count
+        // A fresh connection so a just-edited host/username/password is what gets tried,
+        // even though only a keychain write (not `configuration`) changed for the password.
+        if configuration.mode == .mqttSwitch { disconnectMQTT() }
+        return try await loadLights().count
     }
 
     private func escaped(_ id: String) -> String {
@@ -157,6 +380,8 @@ final class APILightProvider: LightProvider {
             case .simpleSwitch:
                 let header = configuration.keyHeader.isEmpty ? "X-API-Key" : configuration.keyHeader
                 request.setValue(token, forHTTPHeaderField: header)
+            case .mqttSwitch:
+                break // MQTT never goes through this HTTP path.
             }
         }
         if let body {
@@ -180,6 +405,55 @@ final class APILightProvider: LightProvider {
     }
 }
 
+extension APILightProvider: CocoaMQTTDelegate {
+    func mqtt(_ mqtt: CocoaMQTT, didConnectAck ack: CocoaMQTTConnAck) {
+        mqttLock.lock()
+        let waiters = mqttConnectWaiters; mqttConnectWaiters = [:]
+        mqttLock.unlock()
+        let result: Result<Void, Error> = ack == .accept
+            ? .success(())
+            : .failure(APIError.network("MQTT: \(ack.description)"))
+        waiters.values.forEach { $0(result) }
+    }
+
+    func mqtt(_ mqtt: CocoaMQTT, didPublishMessage message: CocoaMQTTMessage, id: UInt16) {}
+
+    func mqtt(_ mqtt: CocoaMQTT, didPublishAck id: UInt16) {
+        mqttLock.lock()
+        let waiter = mqttPublishWaiters.removeValue(forKey: id)
+        mqttLock.unlock()
+        waiter?(.success(()))
+    }
+
+    func mqtt(_ mqtt: CocoaMQTT, didReceiveMessage message: CocoaMQTTMessage, id: UInt16) {
+        guard message.topic == configuration.stateTopic,
+              let isOn = Self.parseMQTTBool(message.string ?? "") else { return }
+        mqttLock.lock()
+        mqttLastOnState = isOn
+        let waiters = mqttStateWaiters; mqttStateWaiters = [:]
+        mqttLock.unlock()
+        waiters.values.forEach { $0(isOn) }
+    }
+
+    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopics success: NSDictionary, failed: [String]) {}
+    func mqtt(_ mqtt: CocoaMQTT, didUnsubscribeTopics topics: [String]) {}
+    func mqttDidPing(_ mqtt: CocoaMQTT) {}
+    func mqttDidReceivePong(_ mqtt: CocoaMQTT) {}
+
+    func mqttDidDisconnect(_ mqtt: CocoaMQTT, withError err: Error?) {
+        mqttLock.lock()
+        guard mqtt === mqttClient else { mqttLock.unlock(); return }
+        mqttClient = nil
+        mqttHasSubscribed = false
+        let connectWaiters = mqttConnectWaiters; mqttConnectWaiters = [:]
+        let publishWaiters = mqttPublishWaiters; mqttPublishWaiters = [:]
+        mqttLock.unlock()
+        let error = APIError.network(err?.localizedDescription ?? "MQTT disconnected")
+        connectWaiters.values.forEach { $0(.failure(error)) }
+        publishWaiters.values.forEach { $0(.failure(error)) }
+    }
+}
+
 enum APIError: LocalizedError {
     case notConfigured, invalidURL, unauthorized, decoding
     case http(Int)
@@ -197,14 +471,20 @@ enum APIError: LocalizedError {
     }
 }
 
-/// Minimal Keychain wrapper for the API token.
+/// Minimal Keychain wrapper for the API token and MQTT password.
 enum Keychain {
     private static let service = "Jitwisut.AppleHome"
     private static let tokenAccount = "api-token"
+    private static let mqttPasswordAccount = "mqtt-password"
 
     static var apiToken: String? {
         get { read(tokenAccount) }
         set { write(newValue, account: tokenAccount) }
+    }
+
+    static var mqttPassword: String? {
+        get { read(mqttPasswordAccount) }
+        set { write(newValue, account: mqttPasswordAccount) }
     }
 
     private static func read(_ account: String) -> String? {

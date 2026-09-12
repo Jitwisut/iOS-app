@@ -411,6 +411,26 @@
         }
       }
     },
+    "Availability": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานะออนไลน์"
+          }
+        }
+      }
+    },
+    "Availability topic": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topic สถานะออนไลน์"
+          }
+        }
+      }
+    },
     "Away": {
       "localizations": {
         "th": {
@@ -471,6 +491,16 @@
         }
       }
     },
+    "Broker": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Broker"
+          }
+        }
+      }
+    },
     "Cabinet Strip": {
       "localizations": {
         "th": {
@@ -517,6 +547,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "ปิด"
+          }
+        }
+      }
+    },
+    "Command": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คำสั่ง"
+          }
+        }
+      }
+    },
+    "Command topic": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topic คำสั่ง"
           }
         }
       }
@@ -595,6 +645,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "การเชื่อมต่อ"
+          }
+        }
+      }
+    },
+    "Connects to your broker over the internet, so no local network permission is needed.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชื่อมต่อกับ broker ผ่านอินเทอร์เน็ต จึงไม่ต้องขอสิทธิ์เครือข่ายภายใน"
           }
         }
       }
@@ -705,6 +765,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "สำหรับเซิร์ฟเวอร์ที่มีไฟหลายดวงและปรับความสว่างได้ ดูรายละเอียดในไฟล์ API.md ของโปรเจกต์"
+          }
+        }
+      }
+    },
+    "For a single device switched by publishing to an MQTT broker, such as an ESP relay connected to HiveMQ Cloud.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สำหรับอุปกรณ์ตัวเดียวที่สั่งเปิด/ปิดผ่านการ publish ไปยัง MQTT broker เช่น ESP ที่เชื่อมต่อกับ HiveMQ Cloud"
           }
         }
       }
@@ -1109,12 +1179,22 @@
         }
       }
     },
-    "One on/off device": {
+    "One on/off device (HTTP)": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "อุปกรณ์เปิด/ปิดตัวเดียว"
+            "value": "อุปกรณ์เปิด/ปิดตัวเดียว (HTTP)"
+          }
+        }
+      }
+    },
+    "One on/off device (MQTT)": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อุปกรณ์เปิด/ปิดตัวเดียว (MQTT)"
           }
         }
       }
@@ -1169,6 +1249,16 @@
         }
       }
     },
+    "Password": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รหัสผ่าน"
+          }
+        }
+      }
+    },
     "Pendant": {
       "localizations": {
         "th": {
@@ -1195,6 +1285,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไฟหน้าบ้าน"
+          }
+        }
+      }
+    },
+    "Port": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พอร์ต"
           }
         }
       }
@@ -1339,6 +1439,26 @@
         }
       }
     },
+    "State": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานะ"
+          }
+        }
+      }
+    },
+    "State topic": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topic สถานะ"
+          }
+        }
+      }
+    },
     "Status": {
       "localizations": {
         "th": {
@@ -1409,6 +1529,16 @@
         }
       }
     },
+    "The app publishes ON/OFF to Command. State and availability are retained messages the device publishes; availability is optional.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แอปจะ publish ON/OFF ไปที่ Command ส่วน State และสถานะออนไลน์เป็นข้อความ retained ที่อุปกรณ์เป็นผู้ publish โดย Topic สถานะออนไลน์ไม่บังคับ"
+          }
+        }
+      }
+    },
     "The automation is saved, but it only runs with a home hub (Apple TV or HomePod) at home.": {
       "localizations": {
         "th": {
@@ -1425,6 +1555,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ระบบจะส่ง key ไปใน header ชื่อ %@ และเก็บไว้ใน keychain ของ iPhone"
+          }
+        }
+      }
+    },
+    "The password is stored in the iPhone keychain. The connection uses TLS.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รหัสผ่านจะถูกเก็บไว้ใน keychain ของ iPhone การเชื่อมต่อใช้ TLS"
           }
         }
       }
@@ -1485,6 +1625,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Token"
+          }
+        }
+      }
+    },
+    "Topics": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topic"
           }
         }
       }
@@ -1671,6 +1821,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ใช้ตำแหน่งปัจจุบัน"
+          }
+        }
+      }
+    },
+    "Username": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อผู้ใช้"
           }
         }
       }
