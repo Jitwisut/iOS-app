@@ -26,6 +26,12 @@ final class LocationService: NSObject {
     private static let monitorName = "AppleHomeArrival"
     private static let conditionID = "home"
     private static let insideKey = "zone.lastInside"
+    /// The old CLLocationManager.startMonitoring(for:) region API, run alongside CLMonitor.
+    /// Apple documents *this specific API* as the one exception that keeps working after the
+    /// user force-quits the app — CLMonitor is newer and that guarantee isn't documented for
+    /// it, so this is defense in depth, not a replacement. Both report through the same
+    /// `handle(state:)`, which already collapses duplicate transitions from either source.
+    private static let classicRegionID = "AppleHomeArrivalClassic"
 
     /// Only real transitions (outside → inside, inside → outside) are reported, never the
     /// first "you are already inside" determination after setting the zone up.
@@ -114,6 +120,8 @@ final class LocationService: NSObject {
         geofenceLog.info("zone set r=\(radius) assumed=\(String(describing: assumed), privacy: .public)")
         let condition = CLMonitor.CircularGeographicCondition(center: center.clCoordinate, radius: radius)
         await monitor.add(condition, identifier: Self.conditionID, assuming: assumed)
+
+        applyClassicRegion(center: center, radius: radius)
     }
 
     func clearZone() async {
@@ -121,15 +129,36 @@ final class LocationService: NSObject {
         backgroundSession?.invalidate()
         backgroundSession = nil
         isInsideZone = nil
+        removeClassicRegion()
+    }
+
+    private func applyClassicRegion(center: Coordinate, radius: Double) {
+        removeClassicRegion()
+        let clamped = min(radius, manager.maximumRegionMonitoringDistance)
+        let region = CLCircularRegion(center: center.clCoordinate, radius: clamped, identifier: Self.classicRegionID)
+        region.notifyOnEntry = true
+        region.notifyOnExit = true
+        manager.startMonitoring(for: region)
+    }
+
+    private func removeClassicRegion() {
+        for region in manager.monitoredRegions where region.identifier == Self.classicRegionID {
+            manager.stopMonitoring(for: region)
+        }
     }
 
     private func handle(state: CLMonitor.Event.State) {
-        let inside: Bool
         switch state {
-        case .satisfied: inside = true
-        case .unsatisfied: inside = false
+        case .satisfied: handle(inside: true)
+        case .unsatisfied: handle(inside: false)
         default: return
         }
+    }
+
+    /// Shared by both monitoring paths (CLMonitor and the classic region API below), so a
+    /// transition reported by either — or both, in whichever order they happen to arrive —
+    /// is only ever acted on once.
+    private func handle(inside: Bool) {
         let previous = isInsideZone
         isInsideZone = inside
         guard let previous, previous != inside else { return }
@@ -147,6 +176,27 @@ extension LocationService: CLLocationManagerDelegate {
                 self.startLiveUpdates()
             }
         }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        guard region.identifier == Self.classicRegionID else { return }
+        Task { @MainActor in
+            geofenceLog.info("classic region: entered")
+            self.handle(inside: true)
+        }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        guard region.identifier == Self.classicRegionID else { return }
+        Task { @MainActor in
+            geofenceLog.info("classic region: exited")
+            self.handle(inside: false)
+        }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        guard region?.identifier == Self.classicRegionID else { return }
+        geofenceLog.error("classic region monitoring failed: \(error.localizedDescription, privacy: .public)")
     }
 }
 
