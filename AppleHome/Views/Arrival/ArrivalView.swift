@@ -6,6 +6,7 @@ struct ArrivalView: View {
     @State private var camera: MapCameraPosition = .automatic
     @State private var radiusDraft: Double?
     @State private var runningTest = false
+    @State private var showingSetHome = false
 
     private var radius: Double { radiusDraft ?? model.arrival.settings.radius }
 
@@ -34,6 +35,12 @@ struct ArrivalView: View {
                 switch route {
                 case "shortcuts": ShortcutPickerView()
                 default: LightPickerView()
+                }
+            }
+            .sheet(isPresented: $showingSetHome) {
+                SetHomeView { coordinate in
+                    withAnimation(.snappySpring) { model.arrival.settings.home = coordinate }
+                    focusHome()
                 }
             }
         }
@@ -65,25 +72,22 @@ struct ArrivalView: View {
 
     private var mapCard: some View {
         let arrival = model.arrival
-        return MapReader { proxy in
-            Map(position: $camera, interactionModes: [.pan, .zoom, .rotate, .pitch]) {
-                if let home = arrival.settings.home {
-                    MapCircle(center: home.clCoordinate, radius: radius)
-                        .foregroundStyle(Theme.cyan.opacity(0.16))
-                        .stroke(Theme.cyan.opacity(0.95), lineWidth: 2)
-                    Annotation("Home", coordinate: home.clCoordinate, anchor: .center) {
-                        HomePin(isHome: arrival.isHome == true)
-                    }
+        // Read-only preview: panning/zooming here is just looking around, never moves the
+        // pin. Placing or moving home always goes through the dedicated SetHomeView sheet,
+        // so a stray tap while browsing the map can never relocate it by accident.
+        return Map(position: $camera, interactionModes: [.pan, .zoom, .rotate, .pitch]) {
+            if let home = arrival.settings.home {
+                MapCircle(center: home.clCoordinate, radius: radius)
+                    .foregroundStyle(Theme.cyan.opacity(0.16))
+                    .stroke(Theme.cyan.opacity(0.95), lineWidth: 2)
+                Annotation("Home", coordinate: home.clCoordinate, anchor: .center) {
+                    HomePin(isHome: arrival.isHome == true)
                 }
-                UserAnnotation()
             }
-            .mapStyle(.standard(elevation: .realistic, emphasis: .muted, pointsOfInterest: .excludingAll))
-            .mapControls { MapCompass() }
-            .onTapGesture { point in
-                guard let coordinate = proxy.convert(point, from: .local) else { return }
-                withAnimation(.snappySpring) { model.arrival.settings.home = Coordinate(coordinate) }
-            }
+            UserAnnotation()
         }
+        .mapStyle(.standard(elevation: .realistic, emphasis: .muted, pointsOfInterest: .excludingAll))
+        .mapControls { MapCompass() }
         .frame(height: 340)
         .clipShape(.rect(cornerRadius: Theme.cardRadius))
         .overlay {
@@ -93,16 +97,16 @@ struct ArrivalView: View {
         .overlay(alignment: .top) { statusPill.padding(12) }
         .overlay(alignment: .bottomTrailing) {
             Button {
-                useCurrentLocation()
+                showingSetHome = true
             } label: {
-                Label("Use my location", systemImage: "location.fill")
+                Label(arrival.settings.home == nil ? String(localized: "Set home") : String(localized: "Change home"),
+                      systemImage: "mappin.and.ellipse")
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 14)
                     .frame(minHeight: 44)
             }
-            .buttonStyle(.glass)
+            .buttonStyle(.glassProminent)
             .tint(Theme.cyan)
-            .disabled(model.location.location == nil)
             .padding(12)
         }
     }
@@ -111,7 +115,7 @@ struct ArrivalView: View {
         let arrival = model.arrival
         let (symbol, color, text): (String, Color, String) = {
             guard arrival.settings.home != nil else {
-                return ("hand.tap.fill", Theme.cyan, String(localized: "Tap the map to set your home"))
+                return ("mappin.and.ellipse", Theme.cyan, String(localized: "Set your home location"))
             }
             if arrival.isHome == true { return ("house.fill", Theme.mint, String(localized: "You're home")) }
             if let d = arrival.distanceToHome { return ("location.fill", Theme.cyan, String(localized: "\(Format.distance(d)) from home")) }
@@ -339,12 +343,6 @@ struct ArrivalView: View {
             if arrival.settings.notify { Task { await arrival.requestNotificationPermission() } }
         }
         withAnimation(.snappySpring) { arrival.settings.isEnabled = on }
-        focusHome()
-    }
-
-    private func useCurrentLocation() {
-        guard let here = model.location.location else { return }
-        withAnimation(.snappySpring) { model.arrival.settings.home = Coordinate(here.coordinate) }
         focusHome()
     }
 

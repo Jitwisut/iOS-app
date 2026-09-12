@@ -589,6 +589,16 @@
         }
       }
     },
+    "Change home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปลี่ยนตำแหน่งบ้าน"
+          }
+        }
+      }
+    },
     "Clear": {
       "localizations": {
         "th": {
@@ -733,6 +743,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ควบคุมไฟที่เพิ่มไว้ในแอป Home ของ Apple ระบบอัตโนมัติตอนถึงบ้านจะบันทึกไว้ใน Apple Home และสั่งงานโดย Home Hub"
+          }
+        }
+      }
+    },
+    "Couldn't find that address.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบที่อยู่นี้"
           }
         }
       }
@@ -1053,6 +1073,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ห้องนั่งเล่น"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตำแหน่ง"
           }
         }
       }
@@ -1507,6 +1537,16 @@
         }
       }
     },
+    "Search for an address": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ค้นหาที่อยู่"
+          }
+        }
+      }
+    },
     "Server": {
       "localizations": {
         "th": {
@@ -1527,12 +1567,32 @@
         }
       }
     },
+    "Set as home": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งเป็นบ้าน"
+          }
+        }
+      }
+    },
     "Set home": {
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
             "value": "ตั้งตำแหน่งบ้าน"
+          }
+        }
+      }
+    },
+    "Set your home location": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งตำแหน่งบ้านของคุณ"
           }
         }
       }
@@ -1663,16 +1723,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "แตะเพื่อสั่งงาน"
-          }
-        }
-      }
-    },
-    "Tap the map to set your home": {
-      "localizations": {
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "แตะแผนที่เพื่อตั้งตำแหน่งบ้าน"
           }
         }
       }
