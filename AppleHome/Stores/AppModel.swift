@@ -93,6 +93,19 @@ final class AppModel {
         }
     }
 
+    /// `RootView` calls this from `.onOpenURL` when Shortcuts reports back after a run.
+    func handleShortcutCallback(_ url: URL) {
+        guard let result = ShortcutsService.parseCallback(url) else { return }
+        switch result.status {
+        case .success:
+            log.add(.shortcut, String(localized: "Ran “\(result.name)”"))
+        case .error:
+            log.add(.error, String(localized: "“\(result.name)” failed"))
+        case .cancelled:
+            break // The user backed out in the Shortcuts app; nothing to report.
+        }
+    }
+
     var homeName: String {
         if !settings.homeName.isEmpty { return settings.homeName }
         if settings.homeKitEnabled, let name = homeKit.home?.name { return name }

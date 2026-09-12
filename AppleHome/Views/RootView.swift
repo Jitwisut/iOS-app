@@ -20,6 +20,9 @@ struct RootView: View {
         .tint(Theme.amber)
         .preferredColorScheme(.dark)
         .overlay(alignment: .top) { ErrorBanner() }
+        .onOpenURL { url in
+            model.handleShortcutCallback(url)
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 model.location.startLiveUpdates()

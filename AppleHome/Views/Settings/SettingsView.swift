@@ -1,7 +1,7 @@
 import SwiftUI
 import HomeKit
 
-private enum SettingsRoute: Hashable { case api, homeKit, activity }
+private enum SettingsRoute: Hashable { case api, homeKit, activity, shortcuts }
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
@@ -44,6 +44,17 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    NavigationLink(value: SettingsRoute.shortcuts) {
+                        SettingsRow(symbol: "bolt.fill", color: Theme.mint, title: Text("Shortcuts"),
+                                    detail: Text(model.settings.shortcuts.isEmpty
+                                                 ? String(localized: "None added")
+                                                 : "\(model.settings.shortcuts.count)"))
+                    }
+                } footer: {
+                    Text("Run shortcuts from your own Shortcuts app.")
+                }
+
+                Section {
                     NavigationLink(value: SettingsRoute.activity) {
                         SettingsRow(symbol: "clock.arrow.circlepath", color: Theme.cyan, title: Text("Activity"),
                                     detail: Text("\(model.log.entries.count) events"))
@@ -73,6 +84,7 @@ struct SettingsView: View {
                 case .api: APISettingsView()
                 case .homeKit: HomeKitSettingsView()
                 case .activity: ActivityLogView()
+                case .shortcuts: ShortcutsSettingsView()
                 }
             }
         }
@@ -83,6 +95,7 @@ struct SettingsView: View {
             case "api": path = [.api]
             case "homeKit": path = [.homeKit]
             case "activity": path = [.activity]
+            case "shortcuts": path = [.shortcuts]
             default: break
             }
         }
@@ -426,5 +439,85 @@ struct ActivityLogView: View {
                 Button("Clear", role: .destructive) { model.log.clear() }
             }
         }
+    }
+}
+
+// MARK: - Shortcuts
+
+struct ShortcutsSettingsView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
+    @State private var newName = ""
+
+    var body: some View {
+        @Bindable var model = model
+        Form {
+            if !model.settings.shortcuts.isEmpty {
+                Section {
+                    ForEach(model.settings.shortcuts) { item in
+                        Button {
+                            run(item)
+                        } label: {
+                            HStack(spacing: 14) {
+                                IconBadge(symbol: "bolt.fill", color: Theme.mint, size: 34)
+                                Text(item.name)
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                Spacer()
+                                Image(systemName: "play.circle.fill")
+                                    .foregroundStyle(Theme.amber)
+                            }
+                            .frame(minHeight: 44)
+                        }
+                    }
+                    .onDelete { model.settings.shortcuts.remove(atOffsets: $0) }
+                } header: {
+                    Text("Your shortcuts")
+                } footer: {
+                    Text("Tap one to run it.")
+                }
+            }
+
+            Section {
+                TextField(text: $newName, prompt: Text("Shortcut name")) {
+                    Text("Name")
+                }
+                .textInputAutocapitalization(.words)
+                .onSubmit(add)
+
+                Button("Add", action: add)
+                    .disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            } header: {
+                Text("Add a shortcut")
+            } footer: {
+                Text("Type the exact name of a shortcut from the Shortcuts app.")
+            }
+
+            Section {
+                Button {
+                    openURL(ShortcutsService.appURL)
+                } label: {
+                    SettingsRow(symbol: "square.stack.3d.up.fill", color: Theme.cyan, title: Text("Open Shortcuts app"))
+                }
+            } footer: {
+                Text("iOS doesn't let other apps see your shortcuts list, so copy the name from there first.")
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(NightBackground(glow: 0.15, accent: Theme.mint))
+        .navigationTitle(Text("Shortcuts"))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func add() {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        model.settings.shortcuts.append(ShortcutItem(name: trimmed))
+        newName = ""
+    }
+
+    private func run(_ item: ShortcutItem) {
+        guard let url = ShortcutsService.runURL(named: item.name) else { return }
+        openURL(url)
     }
 }

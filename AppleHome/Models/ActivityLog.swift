@@ -3,7 +3,7 @@ import Observation
 
 struct ActivityEntry: Identifiable, Codable, Sendable {
     enum Kind: String, Codable, Sendable {
-        case arrived, left, test, skipped, error
+        case arrived, left, test, skipped, error, shortcut
 
         var symbol: String {
             switch self {
@@ -12,6 +12,7 @@ struct ActivityEntry: Identifiable, Codable, Sendable {
             case .test: "wand.and.stars"
             case .skipped: "moon.zzz.fill"
             case .error: "exclamationmark.triangle.fill"
+            case .shortcut: "bolt.fill"
             }
         }
     }

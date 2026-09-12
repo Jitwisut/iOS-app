@@ -193,6 +193,26 @@
         }
       }
     },
+    "Add": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่ม"
+          }
+        }
+      }
+    },
+    "Add a shortcut": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มคำสั่งลัด"
+          }
+        }
+      }
+    },
     "Add your server URL in Settings first.": {
       "localizations": {
         "th": {
@@ -1009,6 +1029,16 @@
         }
       }
     },
+    "Name": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อ"
+          }
+        }
+      }
+    },
     "Needs a home hub": {
       "localizations": {
         "th": {
@@ -1065,6 +1095,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไม่ตอบสนอง"
+          }
+        }
+      }
+    },
+    "None added": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่ได้เพิ่ม"
           }
         }
       }
@@ -1219,6 +1259,16 @@
         }
       }
     },
+    "Open Shortcuts app": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดแอป Shortcuts"
+          }
+        }
+      }
+    },
     "Opens brightness controls": {
       "localizations": {
         "th": {
@@ -1319,6 +1369,16 @@
         }
       }
     },
+    "Ran “%@”": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สั่งงาน “%@” แล้ว"
+          }
+        }
+      }
+    },
     "Recent": {
       "localizations": {
         "th": {
@@ -1335,6 +1395,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ห้อง"
+          }
+        }
+      }
+    },
+    "Run shortcuts from your own Shortcuts app.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สั่งงานคำสั่งลัดจากแอป Shortcuts ของคุณ"
           }
         }
       }
@@ -1405,6 +1475,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "ตั้งค่า"
+          }
+        }
+      }
+    },
+    "Shortcut name": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อคำสั่งลัด"
+          }
+        }
+      }
+    },
+    "Shortcuts": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คำสั่งลัด"
           }
         }
       }
@@ -1495,6 +1585,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ซิงก์ตอนนี้"
+          }
+        }
+      }
+    },
+    "Tap one to run it.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แตะเพื่อสั่งงาน"
           }
         }
       }
@@ -1785,6 +1885,16 @@
         }
       }
     },
+    "Type the exact name of a shortcut from the Shortcuts app.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พิมพ์ชื่อคำสั่งลัดให้ตรงกับในแอป Shortcuts"
+          }
+        }
+      }
+    },
     "Updating the automation in Apple Home.": {
       "localizations": {
         "th": {
@@ -1935,8 +2045,38 @@
         }
       }
     },
+    "Your shortcuts": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คำสั่งลัดของคุณ"
+          }
+        }
+      }
+    },
+    "iOS doesn't let other apps see your shortcuts list, so copy the name from there first.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS ไม่อนุญาตให้แอปอื่นเห็นรายการคำสั่งลัดของคุณ จึงต้องคัดลอกชื่อมาจากแอป Shortcuts ก่อน"
+          }
+        }
+      }
+    },
     "·": {
       "shouldTranslate": false
+    },
+    "“%@” failed": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” ล้มเหลว"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

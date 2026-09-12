@@ -4,6 +4,7 @@ private struct LightRef: Identifiable { let id: String }
 
 struct HomeView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
     @State private var openLight: LightRef?
 
     private let columns = [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)]
@@ -18,6 +19,7 @@ struct HomeView: View {
                     hero
                     if !store.rooms.isEmpty { roomChips }
                     lights
+                    if !model.settings.shortcuts.isEmpty { shortcutsStrip }
                     arrivalCard
                 }
                 .padding(.horizontal, 20)
@@ -189,6 +191,29 @@ struct HomeView: View {
         }
     }
 
+    // MARK: Shortcuts
+
+    private var shortcutsStrip: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionTitle(title: Text("Shortcuts"))
+            ScrollView(.horizontal) {
+                GlassEffectContainer(spacing: 10) {
+                    HStack(spacing: 10) {
+                        ForEach(model.settings.shortcuts) { item in
+                            ShortcutChip(name: item.name) {
+                                guard let url = ShortcutsService.runURL(named: item.name) else { return }
+                                openURL(url)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .scrollIndicators(.hidden)
+            .scrollClipDisabled()
+        }
+    }
+
     // MARK: Arrival
 
     private var arrivalCard: some View {
@@ -250,6 +275,33 @@ private struct RoomChip: View {
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+private struct ShortcutChip: View {
+    let name: String
+    let action: () -> Void
+    @State private var ran = false
+
+    var body: some View {
+        Button {
+            ran.toggle()
+            action()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "bolt.fill")
+                    .foregroundStyle(Theme.mint)
+                Text(name)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 16)
+            .frame(minHeight: 44)
+            .glassEffect(.regular.interactive(), in: .capsule)
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(weight: .light), trigger: ran)
     }
 }
 

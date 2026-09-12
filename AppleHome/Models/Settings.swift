@@ -88,12 +88,21 @@ struct APIConfiguration: Codable, Equatable, Sendable {
     }
 }
 
+/// A shortcut from the user's own Shortcuts app, run by name. iOS gives third-party
+/// apps no way to list or introspect a user's shortcuts, so this is just a name the
+/// user copied over — see `ShortcutsService`.
+struct ShortcutItem: Codable, Equatable, Identifiable, Sendable {
+    var id = UUID()
+    var name = ""
+}
+
 struct AppSettings: Codable, Equatable, Sendable {
     var homeName = ""
     var demoEnabled = true
     var api = APIConfiguration()
     var homeKitEnabled = false
     var homeKitHomeID: String?
+    var shortcuts: [ShortcutItem] = []
 
     init() {}
 
@@ -104,6 +113,7 @@ struct AppSettings: Codable, Equatable, Sendable {
         api = try c.decodeIfPresent(APIConfiguration.self, forKey: .api) ?? APIConfiguration()
         homeKitEnabled = try c.decodeIfPresent(Bool.self, forKey: .homeKitEnabled) ?? false
         homeKitHomeID = try c.decodeIfPresent(String.self, forKey: .homeKitHomeID)
+        shortcuts = try c.decodeIfPresent([ShortcutItem].self, forKey: .shortcuts) ?? []
     }
 }
 

@@ -437,6 +437,7 @@ struct ActivityRow: View {
         case .test: Theme.mint
         case .skipped: Theme.textSecondary
         case .error: Theme.danger
+        case .shortcut: Theme.mint
         }
     }
 }
