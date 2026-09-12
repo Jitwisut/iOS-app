@@ -120,6 +120,34 @@
         }
       }
     },
+    "%lld shortcuts": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld shortcut"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld shortcuts"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld คำสั่งลัด"
+          }
+        }
+      }
+    },
     "%lld%%": {
       "shouldTranslate": false
     },
@@ -209,6 +237,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "เพิ่มคำสั่งลัด"
+          }
+        }
+      }
+    },
+    "Add one in Settings › Shortcuts first.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มคำสั่งลัดที่ตั้งค่า › คำสั่งลัด ก่อน"
           }
         }
       }
@@ -709,6 +747,16 @@
         }
       }
     },
+    "Couldn't start “%@”": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เริ่ม “%@” ไม่ได้"
+          }
+        }
+      }
+    },
     "Demo": {
       "localizations": {
         "th": {
@@ -1099,6 +1147,16 @@
         }
       }
     },
+    "No saved shortcuts yet": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีคำสั่งลัดที่บันทึกไว้"
+          }
+        }
+      }
+    },
     "None added": {
       "localizations": {
         "th": {
@@ -1405,6 +1463,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "สั่งงานคำสั่งลัดจากแอป Shortcuts ของคุณ"
+          }
+        }
+      }
+    },
+    "Runs alongside your lights when you arrive. Works best while AppleHome is open — in the background, iOS may not let it switch to Shortcuts.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "จะทำงานพร้อมกับไฟตอนคุณถึงบ้าน ทำงานได้ดีที่สุดตอนเปิดแอป AppleHome อยู่ — ถ้าแอปทำงานเบื้องหลัง iOS อาจไม่ยอมให้สลับไปแอป Shortcuts"
           }
         }
       }

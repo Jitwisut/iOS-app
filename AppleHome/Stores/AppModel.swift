@@ -35,6 +35,7 @@ final class AppModel {
         api = APILightProvider(configuration: settings.api)
         store = HomeStore(providers: [DemoLightProvider(), api, homeKit], enabledSources: Self.sources(for: settings))
         arrival = ArrivalController(location: location, store: store, homeKit: homeKit, log: log)
+        arrival.resolveShortcut = { [weak self] id in self?.settings.shortcuts.first { $0.id == id } }
 
         homeKit.selectedHomeID = settings.homeKitHomeID
         homeKit.onChange = { [weak self] in

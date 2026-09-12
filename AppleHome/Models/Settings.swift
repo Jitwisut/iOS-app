@@ -32,8 +32,27 @@ struct ArrivalSettings: Codable, Equatable, Sendable {
     var onLeave: LeaveAction = .turnOff
     var onlyAfterDark = false
     var notify = true
+    /// Shortcuts (from Settings › Shortcuts) to run on arrival, in addition to switching
+    /// lights. Best-effort: iOS only lets the app hand off to Shortcuts while AppleHome
+    /// is in the foreground, so this can silently do nothing on a background arrival.
+    var arrivalShortcutIDs: Set<UUID> = []
 
     static let radiusRange: ClosedRange<Double> = 100...2000
+
+    init() {}
+
+    /// Hand-written so settings saved by an older build still load.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        isEnabled = try c.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? false
+        home = try c.decodeIfPresent(Coordinate.self, forKey: .home)
+        radius = try c.decodeIfPresent(Double.self, forKey: .radius) ?? 300
+        lightIDs = try c.decodeIfPresent(Set<String>.self, forKey: .lightIDs) ?? []
+        onLeave = try c.decodeIfPresent(LeaveAction.self, forKey: .onLeave) ?? .turnOff
+        onlyAfterDark = try c.decodeIfPresent(Bool.self, forKey: .onlyAfterDark) ?? false
+        notify = try c.decodeIfPresent(Bool.self, forKey: .notify) ?? true
+        arrivalShortcutIDs = try c.decodeIfPresent(Set<UUID>.self, forKey: .arrivalShortcutIDs) ?? []
+    }
 }
 
 enum APIMode: String, Codable, CaseIterable, Sendable {

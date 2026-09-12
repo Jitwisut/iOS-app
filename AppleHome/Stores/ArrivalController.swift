@@ -23,6 +23,9 @@ final class ArrivalController {
     private let homeKit: HomeKitManager
     private let log: ActivityLog
     private var syncTask: Task<Void, Never>?
+    /// Set by AppModel; looks up the current name for a saved shortcut id, since arrival
+    /// settings only store the id (the name can change without breaking the reference).
+    var resolveShortcut: ((UUID) -> ShortcutItem?)?
     /// Ignore GPS jitter around the edge of the zone. Persisted, because background
     /// arrivals usually run in a freshly relaunched process.
     private let cooldown: TimeInterval = 180
@@ -111,6 +114,7 @@ final class ArrivalController {
             }
             let result = await store.runAutomation(isOn: true, lightIDs: settings.lightIDs, includeHomeKit: isTest)
             report(result, turningOn: true, isTest: isTest)
+            await runShortcuts()
 
         case .exited:
             guard settings.onLeave == .turnOff else { return }
@@ -152,6 +156,22 @@ final class ArrivalController {
         content.title = title
         content.body = message
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
+    }
+
+    /// Best-effort: `UIApplication.open` only succeeds while AppleHome is the foreground
+    /// app, so a background arrival often can't hand off to Shortcuts at all. A successful
+    /// hand-off is logged only once Shortcuts calls back (see AppModel.handleShortcutCallback);
+    /// here we only log the cases where the hand-off itself never happened.
+    private func runShortcuts() async {
+        guard !settings.arrivalShortcutIDs.isEmpty else { return }
+        for id in settings.arrivalShortcutIDs {
+            guard let item = resolveShortcut?(id), let url = ShortcutsService.runURL(named: item.name) else { continue }
+            let opened = await UIApplication.shared.open(url)
+            if !opened {
+                geofenceLog.error("shortcut '\(item.name, privacy: .public)': couldn't open (app likely backgrounded)")
+                log.add(.error, String(localized: "Couldn't start “\(item.name)”"))
+            }
+        }
     }
 
     func requestNotificationPermission() async {

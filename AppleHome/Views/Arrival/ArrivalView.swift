@@ -30,7 +30,12 @@ struct ArrivalView: View {
                 .scrollIndicators(.hidden)
             }
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(for: String.self) { _ in LightPickerView() }
+            .navigationDestination(for: String.self) { route in
+                switch route {
+                case "shortcuts": ShortcutPickerView()
+                default: LightPickerView()
+                }
+            }
         }
         .onAppear {
             // Open on the home zone (not the user, who may be kilometres away).
@@ -210,6 +215,21 @@ struct ArrivalView: View {
                     Text(arrival.settings.lightIDs.isEmpty
                          ? String(localized: "All lights")
                          : String(localized: "\(arrival.settings.lightIDs.count) lights"))
+                        .foregroundStyle(Theme.textSecondary)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+            }
+            .buttonStyle(.plain)
+
+            Divider().overlay(Theme.hairline)
+
+            NavigationLink(value: "shortcuts") {
+                OptionRow(symbol: "bolt.fill", title: Text("Shortcuts")) {
+                    Text(arrival.settings.arrivalShortcutIDs.isEmpty
+                         ? String(localized: "None added")
+                         : String(localized: "\(arrival.settings.arrivalShortcutIDs.count) shortcuts"))
                         .foregroundStyle(Theme.textSecondary)
                     Image(systemName: "chevron.right")
                         .font(.footnote.weight(.bold))
