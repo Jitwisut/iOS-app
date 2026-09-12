@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DCF4B16D9AF97C2C19E313FC /* CocoaMQTT in Frameworks */ = {isa = PBXBuildFile; productRef = 363961E935A66AA3638C554A /* CocoaMQTT */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5AF8A133305326ED00C5B347 /* AppleHome.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleHome.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -13,6 +17,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5AF8A135305326ED00C5B347 /* AppleHome */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = AppleHome;
 			sourceTree = "<group>";
 		};
@@ -23,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCF4B16D9AF97C2C19E313FC /* CocoaMQTT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,7 @@
 			);
 			name = AppleHome;
 			packageProductDependencies = (
+				363961E935A66AA3638C554A /* CocoaMQTT */,
 			);
 			productName = AppleHome;
 			productReference = 5AF8A133305326ED00C5B347 /* AppleHome.app */;
@@ -95,6 +103,9 @@
 			);
 			mainGroup = 5AF8A12A305326ED00C5B347;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				54A856A862F17855333421F3 /* XCRemoteSwiftPackageReference "CocoaMQTT" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5AF8A134305326ED00C5B347 /* Products */;
 			projectDirPath = "";
@@ -247,8 +258,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppleHome/AppleHome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6CXP2A87L5;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CXP2A87L5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AppleHome-Info.plist";
@@ -292,8 +303,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppleHome/AppleHome.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6CXP2A87L5;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CXP2A87L5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "AppleHome-Info.plist";
@@ -352,6 +363,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		54A856A862F17855333421F3 /* XCRemoteSwiftPackageReference "CocoaMQTT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/emqx/CocoaMQTT.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		363961E935A66AA3638C554A /* CocoaMQTT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 54A856A862F17855333421F3 /* XCRemoteSwiftPackageReference "CocoaMQTT" */;
+			productName = CocoaMQTT;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5AF8A12B305326ED00C5B347 /* Project object */;
 }
