@@ -32,6 +32,10 @@ final class LocationService: NSObject {
     /// it, so this is defense in depth, not a replacement. Both report through the same
     /// `handle(state:)`, which already collapses duplicate transitions from either source.
     private static let classicRegionID = "AppleHomeArrivalClassic"
+    /// The zone currently configured, kept so significant-location-change updates (below) can
+    /// independently recompute inside/outside — a real GPS fix, not iOS's own confidence
+    /// heuristic for a geofence boundary.
+    private var currentZone: (center: Coordinate, radius: Double)?
 
     /// Only real transitions (outside → inside, inside → outside) are reported, never the
     /// first "you are already inside" determination after setting the zone up.
@@ -114,19 +118,31 @@ final class LocationService: NSObject {
         // later, in a way that flips whether you're now inside or outside, *does* fire the
         // matching transition. Dragging home away from where you're standing should turn the
         // lights off, the same as actually walking away would.
+        //
+        // setZone() runs on every launch, including a background relaunch, and a fresh
+        // process almost never has `location` populated yet — foreground live updates haven't
+        // started, and CLMonitor/region/significant-change events haven't arrived yet either.
+        // This used to fall into an `else` that wiped isInsideZone to nil right here, which
+        // erased the one piece of state a later relaunch needs to tell a real transition from
+        // noise (see the property's own doc comment) — on a typical outing the app is
+        // relaunched several times before iOS is confident enough to report "exited", and each
+        // relaunch was quietly discarding the "you were inside" memory the eventual real event
+        // needed to compare against, so departures got silently swallowed far more often than
+        // arrivals. Now a stale value is left alone rather than erased; it only ever moves
+        // forward from an actual position fix or a real monitoring event.
         var assumed: CLMonitor.Event.State = .unknown
         if let location {
             let inside = location.distance(from: center.location) <= radius
             assumed = inside ? .satisfied : .unsatisfied
             handle(inside: inside)
-        } else {
-            isInsideZone = nil
         }
         geofenceLog.info("zone set r=\(radius) assumed=\(String(describing: assumed), privacy: .public)")
         let condition = CLMonitor.CircularGeographicCondition(center: center.clCoordinate, radius: radius)
         await monitor.add(condition, identifier: Self.conditionID, assuming: assumed)
 
         applyClassicRegion(center: center, radius: radius)
+        currentZone = (center, radius)
+        manager.startMonitoringSignificantLocationChanges()
     }
 
     func clearZone() async {
@@ -135,6 +151,8 @@ final class LocationService: NSObject {
         backgroundSession = nil
         isInsideZone = nil
         removeClassicRegion()
+        currentZone = nil
+        manager.stopMonitoringSignificantLocationChanges()
     }
 
     private func applyClassicRegion(center: Coordinate, radius: Double) {
@@ -202,6 +220,22 @@ extension LocationService: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
         guard region?.identifier == Self.classicRegionID else { return }
         geofenceLog.error("classic region monitoring failed: \(error.localizedDescription, privacy: .public)")
+    }
+
+    /// Fires only for significant-location-change monitoring here (nothing else in this app
+    /// calls startUpdatingLocation). A real fix arrives roughly every ~500m of movement or on
+    /// a cell tower handoff — infrequent, but it's ground truth from an actual GPS reading,
+    /// not iOS's own (evidently sometimes over-cautious) confidence heuristic for confirming
+    /// a geofence exit. This is what catches a real departure the boundary check missed.
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let newest = locations.last else { return }
+        Task { @MainActor in
+            self.location = newest
+            guard let zone = self.currentZone else { return }
+            let inside = newest.distance(from: zone.center.location) <= zone.radius
+            geofenceLog.info("significant location change: \(inside ? "inside" : "outside", privacy: .public)")
+            self.handle(inside: inside)
+        }
     }
 }
 
