@@ -29,6 +29,7 @@ struct RootView: View {
                 Task { await model.store.refresh() }
             } else if phase == .background {
                 model.location.stopLiveUpdates()
+                model.api.handleAppBackgrounded()
             }
         }
         #if DEBUG

@@ -141,7 +141,23 @@ final class APILightProvider: NSObject, LightProvider {
         )
     }
 
+    /// A CocoaMQTT client can go on reporting `.connected` for a socket the OS has actually
+    /// already torn down — iOS suspends the connection while the app is backgrounded, with no
+    /// callback telling the client it happened, so `mqttEnsureConnected()`'s "already
+    /// connected" shortcut can wave through a dead session. That surfaced as "can't connect"
+    /// errors that only cleared on a full force-quit, since nothing here ever discarded the
+    /// stale client. One retry through a hard `disconnectMQTT()` — a fresh client, fresh
+    /// socket — self-heals it instead, the same way `sendRetrying` does for the HTTP path.
     private func mqttSetPower(_ isOn: Bool) async throws {
+        do {
+            try await mqttSetPowerOnce(isOn)
+        } catch {
+            disconnectMQTT()
+            try await mqttSetPowerOnce(isOn)
+        }
+    }
+
+    private func mqttSetPowerOnce(_ isOn: Bool) async throws {
         try await mqttEnsureConnected()
         let topic = configuration.commandTopic.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !topic.isEmpty else { throw APIError.notConfigured }
@@ -154,7 +170,17 @@ final class APILightProvider: NSObject, LightProvider {
         }
     }
 
+    /// See the retry note on `mqttSetPower` above — same stale-connection failure mode.
     private func mqttCurrentState(timeout: TimeInterval = 6) async throws -> Bool {
+        do {
+            return try await mqttCurrentStateOnce(timeout: timeout)
+        } catch {
+            disconnectMQTT()
+            return try await mqttCurrentStateOnce(timeout: timeout)
+        }
+    }
+
+    private func mqttCurrentStateOnce(timeout: TimeInterval) async throws -> Bool {
         try await mqttEnsureConnected()
         mqttSubscribeIfNeeded()
 
@@ -276,6 +302,15 @@ final class APILightProvider: NSObject, LightProvider {
         client.autoReconnect = false
         client.delegate = self
         return client
+    }
+
+    /// Called when the app backgrounds. iOS can suspend the MQTT socket without ever telling
+    /// CocoaMQTT it happened, so the safest thing on the way out is to drop it ourselves —
+    /// the next call reconnects from scratch (the same path a cold launch already takes)
+    /// instead of risking a resume that finds a connection which merely *looks* alive.
+    func handleAppBackgrounded() {
+        guard configuration.mode == .mqttSwitch else { return }
+        disconnectMQTT()
     }
 
     private func disconnectMQTT() {
