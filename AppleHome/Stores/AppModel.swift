@@ -25,6 +25,8 @@ final class AppModel {
     let log = ActivityLog()
     let location = LocationService()
     let homeKit = HomeKitManager()
+    /// Drives retrying an arrival/departure that failed for lack of internet.
+    let network = NetworkMonitor()
     let api: APILightProvider
     let store: HomeStore
     let arrival: ArrivalController
@@ -34,7 +36,7 @@ final class AppModel {
         self.settings = settings
         api = APILightProvider(configuration: settings.api)
         store = HomeStore(providers: [DemoLightProvider(), api, homeKit], enabledSources: Self.sources(for: settings))
-        arrival = ArrivalController(location: location, store: store, homeKit: homeKit, log: log)
+        arrival = ArrivalController(location: location, store: store, homeKit: homeKit, log: log, network: network)
         arrival.resolveShortcut = { [weak self] id in self?.settings.shortcuts.first { $0.id == id } }
 
         homeKit.selectedHomeID = settings.homeKitHomeID

@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ Will retry automatically.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ จะลองใหม่อัตโนมัติ"
+          }
+        }
+      }
+    },
     "%@ away": {
       "localizations": {
         "th": {
@@ -1067,6 +1077,16 @@
         }
       }
     },
+    "Lights will switch once you're back online. Open AppleHome to retry now.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "จะสั่งไฟให้อัตโนมัติเมื่อกลับมาออนไลน์ หรือเปิดแอป AppleHome เพื่อลองใหม่ทันที"
+          }
+        }
+      }
+    },
     "Living Room": {
       "localizations": {
         "th": {
@@ -1143,6 +1163,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไม่พบบ้าน สร้างบ้านในแอป Home แล้วกลับมาที่นี่อีกครั้ง"
+          }
+        }
+      }
+    },
+    "No internet": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีอินเทอร์เน็ต"
           }
         }
       }
@@ -1473,6 +1503,62 @@
           "stringUnit": {
             "state": "translated",
             "value": "ล่าสุด"
+          }
+        }
+      }
+    },
+    "Retried: turned off %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Retried: turned off %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Retried: turned off %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองใหม่สำเร็จ: ปิดไฟแล้ว %lld ดวง"
+          }
+        }
+      }
+    },
+    "Retried: turned on %lld lights": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Retried: turned on %lld light"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Retried: turned on %lld lights"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองใหม่สำเร็จ: เปิดไฟแล้ว %lld ดวง"
           }
         }
       }

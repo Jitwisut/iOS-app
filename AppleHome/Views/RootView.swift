@@ -26,7 +26,10 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 model.location.startLiveUpdates()
-                Task { await model.store.refresh() }
+                Task {
+                    await model.store.refresh()
+                    await model.arrival.retryPending()
+                }
             } else if phase == .background {
                 model.location.stopLiveUpdates()
                 model.api.handleAppBackgrounded()
