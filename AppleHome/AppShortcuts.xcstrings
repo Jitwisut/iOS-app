@@ -1,0 +1,54 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Turn on the lights in ${applicationName}": {
+      "localizations": {
+        "th": {
+          "stringSet": {
+            "state": "translated",
+            "values": [
+              "เปิดไฟด้วย ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Lights on in ${applicationName}": {
+      "localizations": {
+        "th": {
+          "stringSet": {
+            "state": "translated",
+            "values": [
+              "${applicationName} เปิดไฟ"
+            ]
+          }
+        }
+      }
+    },
+    "Turn off the lights in ${applicationName}": {
+      "localizations": {
+        "th": {
+          "stringSet": {
+            "state": "translated",
+            "values": [
+              "ปิดไฟด้วย ${applicationName}"
+            ]
+          }
+        }
+      }
+    },
+    "Lights off in ${applicationName}": {
+      "localizations": {
+        "th": {
+          "stringSet": {
+            "state": "translated",
+            "values": [
+              "${applicationName} ปิดไฟ"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

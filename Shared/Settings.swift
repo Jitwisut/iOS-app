@@ -136,16 +136,32 @@ struct AppSettings: Codable, Equatable, Sendable {
     }
 }
 
+/// Storage the app shares with its widget extension (Control Center, Home Screen widget),
+/// which runs App Intents in its own process and so can't see the app's own defaults.
+enum AppGroup {
+    static let id = "group.Jitwisut.AppleHome"
+    /// Falls back to the app's own defaults if the group isn't provisioned, so the app
+    /// itself keeps working even when the widgets can't.
+    static let defaults = UserDefaults(suiteName: id) ?? .standard
+
+    static let settingsKey = "settings.v1"
+
+    /// The app's settings as last saved by the app. Read-only from the extension.
+    static var settings: AppSettings {
+        Persisted.load(AppSettings.self, key: settingsKey, in: defaults) ?? AppSettings()
+    }
+}
+
 /// Tiny Codable-over-UserDefaults persistence.
 enum Persisted {
-    static func load<T: Decodable>(_ type: T.Type, key: String) -> T? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+    static func load<T: Decodable>(_ type: T.Type, key: String, in defaults: UserDefaults = .standard) -> T? {
+        guard let data = defaults.data(forKey: key) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
     }
 
-    static func save<T: Encodable>(_ value: T, key: String) {
+    static func save<T: Encodable>(_ value: T, key: String, in defaults: UserDefaults = .standard) {
         if let data = try? JSONEncoder().encode(value) {
-            UserDefaults.standard.set(data, forKey: key)
+            defaults.set(data, forKey: key)
         }
     }
 }

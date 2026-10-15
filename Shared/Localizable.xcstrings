@@ -609,6 +609,16 @@
         }
       }
     },
+    "Choose a Light": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือกไฟ"
+          }
+        }
+      }
+    },
     "Clear": {
       "localizations": {
         "th": {
@@ -1063,6 +1073,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไฟ"
+          }
+        }
+      }
+    },
+    "Lights Off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟ"
+          }
+        }
+      }
+    },
+    "Lights On": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟ"
+          }
+        }
+      }
+    },
+    "Lights are off.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟแล้ว"
+          }
+        }
+      }
+    },
+    "Lights are on.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟแล้ว"
           }
         }
       }
@@ -1633,6 +1683,16 @@
         }
       }
     },
+    "See and switch a light from your light server.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดูสถานะและเปิด–ปิดไฟจากเซิร์ฟเวอร์ไฟของคุณ"
+          }
+        }
+      }
+    },
     "Server": {
       "localizations": {
         "th": {
@@ -1669,6 +1729,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ตั้งตำแหน่งบ้าน"
+          }
+        }
+      }
+    },
+    "Set up a light server in AppleHome first.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งค่าเซิร์ฟเวอร์ไฟในแอป AppleHome ก่อน"
           }
         }
       }
@@ -1793,6 +1863,16 @@
         }
       }
     },
+    "Switches one light from your light server.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดหรือปิดไฟหนึ่งดวงจากเซิร์ฟเวอร์ไฟของคุณ"
+          }
+        }
+      }
+    },
     "Sync now": {
       "localizations": {
         "th": {
@@ -1833,6 +1913,16 @@
         }
       }
     },
+    "That light isn't available anymore.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบไฟดวงนี้แล้ว"
+          }
+        }
+      }
+    },
     "The app publishes ON/OFF to Command. State and availability are retained messages the device publishes; availability is optional.": {
       "localizations": {
         "th": {
@@ -1859,6 +1949,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "ระบบจะส่ง key ไปใน header ชื่อ %@ และเก็บไว้ใน keychain ของ iPhone"
+          }
+        }
+      }
+    },
+    "The light this control switches.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟที่ปุ่มนี้ใช้เปิด–ปิด"
           }
         }
       }
@@ -1959,6 +2059,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "ลองใช้แอปได้โดยไม่ต้องมีอุปกรณ์"
+          }
+        }
+      }
+    },
+    "Turn ${lightID} ${value}": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${value} ${lightID}"
+          }
+        }
+      }
+    },
+    "Turn Off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟ"
+          }
+        }
+      }
+    },
+    "Turn Off the Lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟทั้งหมด"
+          }
+        }
+      }
+    },
+    "Turn On": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟ"
+          }
+        }
+      }
+    },
+    "Turn On the Lights": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟทั้งหมด"
+          }
+        }
+      }
+    },
+    "Turn a Light On or Off": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดหรือปิดไฟ"
+          }
+        }
+      }
+    },
+    "Turn a light from your light server on or off.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดหรือปิดไฟจากเซิร์ฟเวอร์ไฟของคุณ"
           }
         }
       }
@@ -2085,6 +2255,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "เปิดไฟแล้ว %lld ดวง"
+          }
+        }
+      }
+    },
+    "Turns off every light from your light server.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิดไฟทุกดวงจากเซิร์ฟเวอร์ไฟของคุณ"
+          }
+        }
+      }
+    },
+    "Turns on every light from your light server.": {
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดไฟทุกดวงจากเซิร์ฟเวอร์ไฟของคุณ"
           }
         }
       }
