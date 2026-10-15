@@ -7,6 +7,7 @@
 - **ถึงบ้าน (Geofence)**: ตั้งตำแหน่งบ้านบนแผนที่ 3D เลือกรัศมี 100 ม.–2 กม. เลือกไฟ เลือกว่าออกจากบ้านแล้วจะให้ปิดไฟไหม และตั้งให้ทำงานเฉพาะหลังพระอาทิตย์ตกได้
 - **ควบคุมได้ 3 ทาง**: API ของคุณเอง (REST), Apple Home (HomeKit) และไฟตัวอย่าง (Demo)
 - **ภาษาไทย + อังกฤษ** ตามภาษาของเครื่อง
+- **สั่งไฟโดยไม่ต้องเปิดแอป**: ปุ่มใน Control Center / หน้าล็อก, Widget บนหน้าโฮม, Siri และแอป Shortcuts
 
 ## เริ่มใช้งาน
 
@@ -56,6 +57,18 @@ python3 mock-server/server.py
 
 แล้วใส่ Server URL เป็น `http://localhost:8787` (Simulator) หรือ `http://<IP ของ Mac>:8787` (iPhone ที่อยู่ Wi-Fi เดียวกัน)
 
+## ปุ่มลัด Control Center, Widget, Siri และ Shortcuts
+
+ใช้ได้กับไฟจาก **API ของคุณเอง** (ทั้ง 3 แบบ) เท่านั้น เพราะ HomeKit ไม่ยอมให้สั่งอุปกรณ์จาก extension หรือตอนแอปอยู่เบื้องหลัง ส่วนไฟ HomeKit ใช้ปุ่มของแอป Home ได้อยู่แล้ว
+
+- **Control Center / หน้าล็อก / Action button**: เพิ่มปุ่ม "Light" ของ AppleHome แล้วแตะค้างเพื่อเลือกว่าจะให้คุมไฟดวงไหน ถ้าไม่เลือกจะใช้ดวงแรก
+- **Widget**: ขนาดเล็กบนหน้าโฮม และแบบวงกลมบนหน้าล็อก มีปุ่มเปิด–ปิดในตัว
+- **Siri / Shortcuts**: "เปิดไฟด้วย AppleHome" และ "ปิดไฟด้วย AppleHome" ใช้ได้ทันที และในแอป Shortcuts มี action "เปิดหรือปิดไฟ" ให้เลือกไฟทีละดวง
+
+Widget ทำงานใน process แยกจากแอป จึงอ่านการตั้งค่าและ API key / รหัส MQTT ผ่าน **App Group** `group.Jitwisut.AppleHome` ซึ่งถูกตั้งไว้แล้วใน entitlements ของทั้งสอง target ตอน build ลงเครื่องจริง ให้ Xcode สร้าง App Group นี้ให้ในบัญชี Developer ถ้า signing ไม่ยอมรับ App Group ตัวแอปยังใช้งานได้ปกติ แต่ widget จะอ่านการตั้งค่าไม่ได้
+
+> บน Simulator ปุ่ม "Lights On / Lights Off" ที่โชว์ในหน้า Shortcuts กดไม่ได้ ("Unable to run App Shortcut") เพราะ Simulator ไม่ได้ sign แอปด้วย Team ID แต่ action เดียวกันที่ใส่ไว้ใน shortcut ที่สร้างเองทำงานได้ปกติ
+
 ## ทดสอบ geofence บน Simulator
 
 ```bash
@@ -66,10 +79,16 @@ xcrun simctl location booted set 13.7466,100.5393   # เดินเข้า�
 ## โครงสร้างโค้ด
 
 ```
+Shared/          ใช้ร่วมกันระหว่างแอปและ widget extension
+  Light, Settings (+ AppGroup), LightProvider (+Demo), APILightProvider (+ Keychain)
+  LightRemote    สั่งไฟจาก App Intent ได้โดยไม่ต้องพึ่ง AppModel + cache สถานะไฟให้ widget
+  LightOptions   รายการไฟให้เลือกใน intent (ใช้ light id แบบ String แทน AppEntity)
+  Theme          สี ฟอนต์ และ animation กลาง
 AppleHome/
-  Models/      Light, Settings, ActivityLog
-  Services/    LightProvider (+Demo), APILightProvider, HomeKitManager, LocationService (CLMonitor + Sun)
+  Models/      ActivityLog
+  Services/    HomeKitManager, LocationService (CLMonitor + Sun), ShortcutsService, NetworkMonitor
   Stores/      AppModel (composition root), HomeStore, ArrivalController
+  Intents/     App Intents สำหรับ Siri / Shortcuts (เปิด/ปิดไฟ)
   Views/       Home (3D house, cards, detail), Arrival, Settings, Components
-  Theme/       สี ฟอนต์ และ animation กลาง
+AppleHomeWidgets/  Control Center toggle, Widget และ intent ของมัน
 ```

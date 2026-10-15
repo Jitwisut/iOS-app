@@ -11,12 +11,12 @@ enum AppTab: Hashable {
 /// relaunches, so the geofence starts listening before any view exists.
 @Observable
 final class AppModel {
-    private static let key = "settings.v1"
+    private static let key = AppGroup.settingsKey
 
     var settings: AppSettings {
         didSet {
             guard settings != oldValue else { return }
-            Persisted.save(settings, key: Self.key)
+            Persisted.save(settings, key: Self.key, in: AppGroup.defaults)
             apply(previous: oldValue)
         }
     }
@@ -32,7 +32,16 @@ final class AppModel {
     let arrival: ArrivalController
 
     init() {
-        let settings = Persisted.load(AppSettings.self, key: Self.key) ?? AppSettings()
+        // Settings moved into the app group so the widget extension can read them; the
+        // first launch after that move copies them over from where older builds kept them.
+        let settings: AppSettings
+        if let shared = Persisted.load(AppSettings.self, key: Self.key, in: AppGroup.defaults) {
+            settings = shared
+        } else {
+            settings = Persisted.load(AppSettings.self, key: Self.key) ?? AppSettings()
+            Persisted.save(settings, key: Self.key, in: AppGroup.defaults)
+        }
+        Keychain.moveToSharedGroup()
         self.settings = settings
         api = APILightProvider(configuration: settings.api)
         store = HomeStore(providers: [DemoLightProvider(), api, homeKit], enabledSources: Self.sources(for: settings))
@@ -48,6 +57,10 @@ final class AppModel {
             }
         }
         if settings.homeKitEnabled { homeKit.activate() }
+        // Siri or Shortcuts can switch a light in this same process while the app is open.
+        NotificationCenter.default.addObserver(forName: .lightsChangedOutsideApp, object: nil, queue: .main) { [weak self] _ in
+            Task { await self?.store.refresh() }
+        }
 
         #if DEBUG
         // Testing helpers, never compiled into a release build. JSON is passed base64-encoded

@@ -8,11 +8,48 @@
 
 /* Begin PBXBuildFile section */
 		DCF4B16D9AF97C2C19E313FC /* CocoaMQTT in Frameworks */ = {isa = PBXBuildFile; productRef = 363961E935A66AA3638C554A /* CocoaMQTT */; };
+		7B4E2D1A000000000000000D /* AppleHomeWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7B4E2D1A0000000000000001 /* AppleHomeWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7B4E2D1A0000000000000011 /* CocoaMQTT in Frameworks */ = {isa = PBXBuildFile; productRef = 7B4E2D1A0000000000000010 /* CocoaMQTT */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7B4E2D1A000000000000000E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5AF8A12B305326ED00C5B347 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B4E2D1A0000000000000005;
+			remoteInfo = AppleHomeWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7B4E2D1A000000000000000C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7B4E2D1A000000000000000D /* AppleHomeWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5AF8A133305326ED00C5B347 /* AppleHome.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleHome.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B4E2D1A0000000000000001 /* AppleHomeWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AppleHomeWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7B4E2D1A0000000000000004 /* Exceptions for "AppleHomeWidgets" folder in "AppleHomeWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7B4E2D1A0000000000000005 /* AppleHomeWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5AF8A135305326ED00C5B347 /* AppleHome */ = {
@@ -20,6 +57,19 @@
 			exceptions = (
 			);
 			path = AppleHome;
+			sourceTree = "<group>";
+		};
+		7B4E2D1A0000000000000002 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		7B4E2D1A0000000000000003 /* AppleHomeWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7B4E2D1A0000000000000004 /* Exceptions for "AppleHomeWidgets" folder in "AppleHomeWidgets" target */,
+			);
+			path = AppleHomeWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -33,6 +83,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7B4E2D1A0000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B4E2D1A0000000000000011 /* CocoaMQTT in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -40,6 +98,8 @@
 			isa = PBXGroup;
 			children = (
 				5AF8A135305326ED00C5B347 /* AppleHome */,
+				7B4E2D1A0000000000000002 /* Shared */,
+				7B4E2D1A0000000000000003 /* AppleHomeWidgets */,
 				5AF8A134305326ED00C5B347 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				5AF8A133305326ED00C5B347 /* AppleHome.app */,
+				7B4E2D1A0000000000000001 /* AppleHomeWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,13 +123,16 @@
 				5AF8A12F305326ED00C5B347 /* Sources */,
 				5AF8A130305326ED00C5B347 /* Frameworks */,
 				5AF8A131305326ED00C5B347 /* Resources */,
+				7B4E2D1A000000000000000C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				7B4E2D1A000000000000000F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5AF8A135305326ED00C5B347 /* AppleHome */,
+				7B4E2D1A0000000000000002 /* Shared */,
 			);
 			name = AppleHome;
 			packageProductDependencies = (
@@ -77,6 +141,30 @@
 			productName = AppleHome;
 			productReference = 5AF8A133305326ED00C5B347 /* AppleHome.app */;
 			productType = "com.apple.product-type.application";
+		};
+		7B4E2D1A0000000000000005 /* AppleHomeWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B4E2D1A0000000000000009 /* Build configuration list for PBXNativeTarget "AppleHomeWidgets" */;
+			buildPhases = (
+				7B4E2D1A0000000000000006 /* Sources */,
+				7B4E2D1A0000000000000007 /* Frameworks */,
+				7B4E2D1A0000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7B4E2D1A0000000000000003 /* AppleHomeWidgets */,
+				7B4E2D1A0000000000000002 /* Shared */,
+			);
+			name = AppleHomeWidgets;
+			packageProductDependencies = (
+				7B4E2D1A0000000000000010 /* CocoaMQTT */,
+			);
+			productName = AppleHomeWidgets;
+			productReference = 7B4E2D1A0000000000000001 /* AppleHomeWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -90,6 +178,9 @@
 				TargetAttributes = {
 					5AF8A132305326ED00C5B347 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					7B4E2D1A0000000000000005 = {
+						CreatedOnToolsVersion = 27.0;
 					};
 				};
 			};
@@ -112,12 +203,20 @@
 			projectRoot = "";
 			targets = (
 				5AF8A132305326ED00C5B347 /* AppleHome */,
+				7B4E2D1A0000000000000005 /* AppleHomeWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5AF8A131305326ED00C5B347 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B4E2D1A0000000000000008 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -134,7 +233,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7B4E2D1A0000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7B4E2D1A000000000000000F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7B4E2D1A0000000000000005 /* AppleHomeWidgets */;
+			targetProxy = 7B4E2D1A000000000000000E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5AF8A13C305326EF00C5B347 /* Debug */ = {
@@ -341,6 +455,80 @@
 			};
 			name = Release;
 		};
+		7B4E2D1A000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AppleHomeWidgets/AppleHomeWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CXP2A87L5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AppleHomeWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppleHome;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Jitwisut.AppleHome.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7B4E2D1A000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AppleHomeWidgets/AppleHomeWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CXP2A87L5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AppleHomeWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AppleHome;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AppleHome connects to your light server on the home network.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Jitwisut.AppleHome.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -362,6 +550,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		7B4E2D1A0000000000000009 /* Build configuration list for PBXNativeTarget "AppleHomeWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B4E2D1A000000000000000A /* Debug */,
+				7B4E2D1A000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -377,6 +574,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		363961E935A66AA3638C554A /* CocoaMQTT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 54A856A862F17855333421F3 /* XCRemoteSwiftPackageReference "CocoaMQTT" */;
+			productName = CocoaMQTT;
+		};
+		7B4E2D1A0000000000000010 /* CocoaMQTT */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 54A856A862F17855333421F3 /* XCRemoteSwiftPackageReference "CocoaMQTT" */;
 			productName = CocoaMQTT;

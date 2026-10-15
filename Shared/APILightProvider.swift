@@ -313,6 +313,11 @@ final class APILightProvider: NSObject, LightProvider {
         disconnectMQTT()
     }
 
+    /// For one-shot users (App Intents), which shouldn't leave an MQTT session behind.
+    func close() {
+        disconnectMQTT()
+    }
+
     private func disconnectMQTT() {
         mqttLock.lock()
         let client = mqttClient
@@ -522,14 +527,47 @@ enum Keychain {
         set { write(newValue, account: mqttPasswordAccount) }
     }
 
-    private static func read(_ account: String) -> String? {
+    /// Older builds saved secrets in the app's private keychain group, which the widget
+    /// extension can't read — its light controls would then fail with "unauthorized".
+    /// Rewriting each one puts it in the app-group keychain both processes share.
+    ///
+    /// A private copy always wins over a shared one: it can only be there because an older
+    /// build (say, from switching branches in Xcode) saved it after this one last ran.
+    static func moveToSharedGroup() {
+        for account in [tokenAccount, mqttPasswordAccount] {
+            guard let group = privateGroup(of: account), let value = read(account, group: group) else { continue }
+            write(value, account: account)
+        }
+    }
+
+    /// The keychain group of a copy of `account` that isn't in the shared app group, if any.
+    private static func privateGroup(of account: String) -> String? {
         let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnAttributes as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+        ]
+        var items: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &items) == errSecSuccess,
+              let list = items as? [[String: Any]] else { return nil }
+        return list.lazy
+            .compactMap { $0[kSecAttrAccessGroup as String] as? String }
+            .first { $0 != AppGroup.id }
+    }
+
+    /// With no `group`, searches every keychain group this process can use — both the
+    /// shared app group and, in the app, the private group older builds wrote to.
+    private static func read(_ account: String, group: String? = nil) -> String? {
+        var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
         ]
+        if let group { query[kSecAttrAccessGroup as String] = group }
         var item: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess, let data = item as? Data else { return nil }
         return String(data: data, encoding: .utf8)
@@ -547,6 +585,12 @@ enum Keychain {
         add[kSecValueData as String] = Data(value.utf8)
         // Readable after first unlock so background arrival events can still call the API.
         add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
-        SecItemAdd(add as CFDictionary, nil)
+        var shared = add
+        shared[kSecAttrAccessGroup as String] = AppGroup.id
+        // If the app group isn't provisioned on this signing team, keep the secret in the
+        // app's own group so the app still works — only the widgets lose access.
+        if SecItemAdd(shared as CFDictionary, nil) != errSecSuccess {
+            SecItemAdd(add as CFDictionary, nil)
+        }
     }
 }

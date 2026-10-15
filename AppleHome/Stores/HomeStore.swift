@@ -65,12 +65,14 @@ final class HomeStore {
         defer { isLoading = false }
         var loaded: [Light] = []
         var failures: [String] = []
+        var failedSources = Set<LightSource>()
         for source in LightSource.allCases where enabledSources.contains(source) {
             guard let provider = providers[source] else { continue }
             do {
                 loaded += try await provider.loadLights()
             } catch {
                 failures.append("\(source.displayName): \(error.localizedDescription)")
+                failedSources.insert(source)
             }
         }
         withAnimation(.softSpring) {
@@ -78,6 +80,8 @@ final class HomeStore {
             if let selectedRoom, !rooms.contains(selectedRoom) { self.selectedRoom = nil }
         }
         errorMessage = failures.first
+        // A failed read says nothing about the lights, so the widgets keep their last list.
+        if !failedSources.contains(.api) { LightCache.remember(loaded) }
     }
 
     // MARK: Control
@@ -92,6 +96,7 @@ final class HomeStore {
         mutate(id) { $0.isOn = isOn; if isOn && $0.brightness < 0.05 { $0.brightness = 1 } }
         do {
             try await provider.setPower(isOn, remoteID: light.remoteID)
+            LightCache.remember(isOn: isOn, id: id)
         } catch {
             mutate(id) { $0 = previous }
             errorMessage = error.localizedDescription
@@ -116,6 +121,7 @@ final class HomeStore {
             guard !Task.isCancelled else { return }
             do {
                 try await provider.setBrightness(clamped, remoteID: light.remoteID)
+                LightCache.remember(isOn: clamped > 0.005, id: id)
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -154,7 +160,9 @@ final class HomeStore {
             guard let provider = providers[target.source] else { continue }
             do {
                 try await provider.setPower(isOn, remoteID: target.remoteID)
-                mutate(Light.makeID(source: target.source, remoteID: target.remoteID)) { $0.isOn = isOn }
+                let id = Light.makeID(source: target.source, remoteID: target.remoteID)
+                mutate(id) { $0.isOn = isOn }
+                LightCache.remember(isOn: isOn, id: id)
                 result.done += 1
             } catch {
                 result.failed += 1
