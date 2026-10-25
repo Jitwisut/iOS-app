@@ -36,7 +36,17 @@ enum LightCache {
         var cached = lights
         guard let index = cached.firstIndex(where: { $0.id == id }) else { return }
         cached[index].isOn = isOn
+        AppGroup.defaults.set(Date.now, forKey: switchedKey)
         store(cached)
+    }
+
+    private static let switchedKey = "widget.lights.switchedAt"
+
+    /// The cache was written by a switch that the device just confirmed, so it's as fresh as
+    /// a server read would be — and reading it is instant instead of a second round trip.
+    static var isFresh: Bool {
+        guard let date = AppGroup.defaults.object(forKey: switchedKey) as? Date else { return false }
+        return Date.now.timeIntervalSince(date) < 30
     }
 
     private static func store(_ cached: [CachedLight]) {
@@ -77,8 +87,12 @@ enum LightRemote {
 
     static var isSetUp: Bool { AppGroup.settings.api.isEnabled }
 
-    /// Fresh from the server when it answers in time, otherwise the last known list.
+    /// Fresh from the server when it answers in time, otherwise the last known list. Right
+    /// after a switch the cache already holds the confirmed state, so the widget redraws from
+    /// it at once: reading it back over a brand-new MQTT connection is what made a tap on the
+    /// widget's button hang for seconds before the new state showed.
     static func lights() async -> [CachedLight] {
+        if LightCache.isFresh { return LightCache.lights }
         guard let provider = makeProvider() else { return [] }
         defer { provider.close() }
         if let loaded = await withDeadline(readDeadline, { try await provider.loadLights() }) {
