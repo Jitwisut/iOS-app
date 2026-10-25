@@ -66,6 +66,7 @@ private struct LightWidgetView: View {
                 Image(systemName: symbol)
                     .font(.title2.weight(.semibold))
                     .widgetAccentable()
+                    .invalidatableContent()
             }
         }
         .buttonStyle(.plain)
@@ -75,6 +76,9 @@ private struct LightWidgetView: View {
         .accessibilityValue(isOn ? Text("On") : Text("Off"))
     }
 
+    // The state views are marked `.invalidatableContent()` so iOS dims them the moment the
+    // button is tapped, while the switch is still on its way to the device — the widget can
+    // only redraw with the new state once the intent finishes.
     private var small: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top) {
@@ -82,6 +86,7 @@ private struct LightWidgetView: View {
                     .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(isOn ? AnyShapeStyle(Theme.warmGradient) : AnyShapeStyle(Theme.textTertiary))
                     .shadow(color: isOn ? Theme.amber.opacity(0.7) : .clear, radius: 10)
+                    .invalidatableContent()
                 Spacer()
                 if entry.isSetUp {
                     Button(intent: toggle) {
@@ -92,6 +97,7 @@ private struct LightWidgetView: View {
                             .background(Circle().fill(isOn ? AnyShapeStyle(Theme.warmGradient) : AnyShapeStyle(Color.white.opacity(0.14))))
                     }
                     .buttonStyle(.plain)
+                    .invalidatableContent()
                     .accessibilityLabel(isOn ? Text("Turn Off") : Text("Turn On"))
                 }
             }
@@ -104,6 +110,7 @@ private struct LightWidgetView: View {
                 Text(isOn ? "On" : "Off")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(isOn ? Theme.amber : Theme.textSecondary)
+                    .invalidatableContent()
             } else {
                 Text("Set up a light server in AppleHome first.")
                     .font(.footnote.weight(.medium))
