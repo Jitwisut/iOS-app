@@ -55,6 +55,9 @@ final class ArrivalController {
         self.log = log
         self.network = network
         settings = Persisted.load(ArrivalSettings.self, key: Self.key) ?? ArrivalSettings()
+        if settings.isEnabled, let home = settings.home {
+            location.prepare(center: home, radius: settings.radius)
+        }
         location.onTransition = { [weak self] transition in
             Task { await self?.handle(transition) }
         }

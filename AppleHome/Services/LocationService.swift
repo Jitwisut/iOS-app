@@ -36,6 +36,10 @@ final class LocationService: NSObject {
     /// independently recompute inside/outside — a real GPS fix, not iOS's own confidence
     /// heuristic for a geofence boundary.
     private var currentZone: (center: Coordinate, radius: Double)?
+    /// When a geofence (either monitor) last reported a state. A position fix taken before
+    /// this can't overrule it — see didUpdateLocations.
+    private var lastZoneEventDate: Date?
+    private static let maxFixAge: TimeInterval = 30
 
     /// Only real transitions (outside → inside, inside → outside) are reported, never the
     /// first "you are already inside" determination after setting the zone up.
@@ -105,10 +109,37 @@ final class LocationService: NSObject {
         }
     }
 
+    /// The synchronous part of setting the zone up, called first thing at launch — before any
+    /// `await` — so a background relaunch holds its Always session and knows the zone by the
+    /// time the location events that woke it start arriving. A significant-change fix that
+    /// landed before `currentZone` was set used to be silently dropped.
+    func prepare(center: Coordinate, radius: Double) {
+        if backgroundSession == nil { backgroundSession = CLServiceSession(authorization: .always) }
+        currentZone = (center, radius)
+    }
+
     func setZone(center: Coordinate, radius: Double) async {
+        prepare(center: center, radius: radius)
         await activateMonitor()
         guard let monitor else { return }
-        if backgroundSession == nil { backgroundSession = CLServiceSession(authorization: .always) }
+
+        // setZone() runs on every launch, including the background relaunch iOS does to
+        // deliver an arrival — and when the app was swiped away, that relaunch is the *only*
+        // chance to act on it. Removing and re-adding the same geofence here threw away the
+        // very event that woke the app (and a freshly re-added region never reports "entered"
+        // for a place you're already standing in), so an unchanged zone is left exactly as
+        // iOS has it. Instead, ask the classic region where we are now: if the arrival event
+        // itself got lost, its state still turns into the missed transition through
+        // handle(inside:), which compares it against the persisted isInsideZone. (Not
+        // CLMonitor's record.lastEvent — at launch that's still the old state, and feeding it
+        // in reported a false departure right after a real arrival.)
+        if await isAlreadyMonitoring(center: center, radius: radius, monitor: monitor) {
+            geofenceLog.info("zone unchanged, keeping existing monitoring")
+            requestClassicState()
+            manager.startMonitoringSignificantLocationChanges()
+            return
+        }
+
         await monitor.remove(Self.conditionID)
 
         // If we already know where we are, seed the state through the same dedup path a real
@@ -141,8 +172,31 @@ final class LocationService: NSObject {
         await monitor.add(condition, identifier: Self.conditionID, assuming: assumed)
 
         applyClassicRegion(center: center, radius: radius)
-        currentZone = (center, radius)
+        requestClassicState()
         manager.startMonitoringSignificantLocationChanges()
+    }
+
+    /// Both geofences are already registered for exactly this center and radius.
+    private func isAlreadyMonitoring(center: Coordinate, radius: Double, monitor: CLMonitor) async -> Bool {
+        func same(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Bool {
+            abs(a.latitude - b.latitude) < 1e-6 && abs(a.longitude - b.longitude) < 1e-6
+        }
+        guard let record = await monitor.record(for: Self.conditionID),
+              let condition = record.condition as? CLMonitor.CircularGeographicCondition,
+              same(condition.center, center.clCoordinate),
+              abs(condition.radius - radius) < 0.5 else { return false }
+        let classicRadius = min(radius, manager.maximumRegionMonitoringDistance)
+        return manager.monitoredRegions.contains { region in
+            guard region.identifier == Self.classicRegionID, let circle = region as? CLCircularRegion else { return false }
+            return same(circle.center, center.clCoordinate) && abs(circle.radius - classicRadius) < 0.5
+        }
+    }
+
+    /// Answered by `locationManager(_:didDetermineState:for:)`.
+    private func requestClassicState() {
+        for region in manager.monitoredRegions where region.identifier == Self.classicRegionID {
+            manager.requestState(for: region)
+        }
     }
 
     func clearZone() async {
@@ -172,10 +226,19 @@ final class LocationService: NSObject {
 
     private func handle(state: CLMonitor.Event.State) {
         switch state {
-        case .satisfied: handle(inside: true)
-        case .unsatisfied: handle(inside: false)
+        case .satisfied: handleGeofence(inside: true)
+        case .unsatisfied: handleGeofence(inside: false)
         default: return
         }
+    }
+
+    /// A state reported by either geofence, as opposed to a raw position fix. Only a report
+    /// that changes the state moves `lastZoneEventDate`: the launch-time "still inside" reply
+    /// to requestClassicState() mustn't shut out the fresh fix of a departure the geofence
+    /// itself hasn't confirmed yet.
+    private func handleGeofence(inside: Bool) {
+        if isInsideZone != inside { lastZoneEventDate = .now }
+        handle(inside: inside)
     }
 
     /// Shared by both monitoring paths (CLMonitor and the classic region API below), so a
@@ -205,7 +268,7 @@ extension LocationService: CLLocationManagerDelegate {
         guard region.identifier == Self.classicRegionID else { return }
         Task { @MainActor in
             geofenceLog.info("classic region: entered")
-            self.handle(inside: true)
+            self.handleGeofence(inside: true)
         }
     }
 
@@ -213,7 +276,18 @@ extension LocationService: CLLocationManagerDelegate {
         guard region.identifier == Self.classicRegionID else { return }
         Task { @MainActor in
             geofenceLog.info("classic region: exited")
-            self.handle(inside: false)
+            self.handleGeofence(inside: false)
+        }
+    }
+
+    /// The answer to requestClassicState(), plus a copy of every boundary crossing (which
+    /// handle(inside:) collapses with the didEnter/didExit it duplicates).
+    nonisolated func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
+        guard region.identifier == Self.classicRegionID, state != .unknown else { return }
+        let inside = state == .inside
+        Task { @MainActor in
+            geofenceLog.info("classic region state: \(inside ? "inside" : "outside", privacy: .public)")
+            self.handleGeofence(inside: inside)
         }
     }
 
@@ -233,7 +307,15 @@ extension LocationService: CLLocationManagerDelegate {
             self.location = newest
             guard let zone = self.currentZone else { return }
             let inside = newest.distance(from: zone.center.location) <= zone.radius
-            geofenceLog.info("significant location change: \(inside ? "inside" : "outside", privacy: .public)")
+            let age = -newest.timestamp.timeIntervalSinceNow
+            geofenceLog.info("significant location change: \(inside ? "inside" : "outside", privacy: .public) age=\(Int(age))s acc=\(Int(newest.horizontalAccuracy))m")
+            // Starting significant-change monitoring at launch first hands back iOS's cached
+            // last position, which can be from before the trip home. On a background relaunch
+            // for an arrival that stale "outside" landed right after the real "entered" and
+            // switched the lights straight back off, so only a fix that's both recent and
+            // newer than the last geofence state gets a say.
+            if age > Self.maxFixAge { return }
+            if let lastZoneEventDate = self.lastZoneEventDate, newest.timestamp < lastZoneEventDate { return }
             self.handle(inside: inside)
         }
     }
