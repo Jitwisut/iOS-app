@@ -32,6 +32,7 @@ final class AppModel {
     let arrival: ArrivalController
 
     init() {
+        GeofenceTrace.add("launch")
         // Settings moved into the app group so the widget extension can read them; the
         // first launch after that move copies them over from where older builds kept them.
         let settings: AppSettings

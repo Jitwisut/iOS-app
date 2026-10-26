@@ -105,7 +105,7 @@ final class ArrivalController {
     }
 
     private func applyZone() async {
-        geofenceLog.info("applyZone enabled=\(self.settings.isEnabled) hasHome=\(self.settings.home != nil) r=\(self.settings.radius)")
+        GeofenceTrace.add("applyZone enabled=\(self.settings.isEnabled) hasHome=\(self.settings.home != nil) r=\(self.settings.radius)")
         if settings.isEnabled, let home = settings.home {
             await location.setZone(center: home, radius: settings.radius)
         } else {
@@ -120,10 +120,16 @@ final class ArrivalController {
     }
 
     private func handle(_ transition: ZoneTransition, isTest: Bool = false) async {
-        guard settings.isEnabled || isTest else { return }
+        guard settings.isEnabled || isTest else {
+            GeofenceTrace.add("\(transition.rawValue) ignored: arrival automation is off")
+            return
+        }
         let runKey = "\(Self.lastRunKey).\(transition.rawValue)"
         if !isTest, let last = UserDefaults.standard.object(forKey: runKey) as? Date,
-           Date().timeIntervalSince(last) < cooldown { return }
+           Date().timeIntervalSince(last) < cooldown {
+            GeofenceTrace.add("\(transition.rawValue) ignored: ran \(Int(Date().timeIntervalSince(last)))s ago")
+            return
+        }
         // A newer arrival/departure supersedes anything still waiting to be retried.
         if !isTest { Self.clearPending() }
 
@@ -135,6 +141,7 @@ final class ArrivalController {
         case .entered:
             if settings.onlyAfterDark, let home = settings.home, !Sun.isDark(coordinate: home) {
                 if !isTest { Self.markRan(transition) }
+                GeofenceTrace.add("entered skipped: daylight")
                 log.add(.skipped, String(localized: "Arrived home during daylight. Lights left as they were."))
                 return
             }
@@ -179,7 +186,7 @@ final class ArrivalController {
 
     private func keepForRetry(_ transition: ZoneTransition) async {
         Persisted.save(PendingAutomation(transition: transition.rawValue, date: .now), key: Self.pendingKey)
-        geofenceLog.info("kept \(transition.rawValue, privacy: .public) for retry, online=\(String(describing: self.network.isOnline), privacy: .public)")
+        GeofenceTrace.add("kept \(transition.rawValue) for retry, online=\(String(describing: self.network.isOnline))")
         // Still inside handle()'s background task: if we're offline, hold on briefly in case
         // the connection comes straight back. A suspended app can't hear about it later.
         guard network.isOnline == false else { return }
@@ -206,7 +213,7 @@ final class ArrivalController {
             ? location.isInsideZone == true
             : location.isInsideZone == false && settings.onLeave == .turnOff
         guard stillApplies else {
-            geofenceLog.info("dropping pending \(pending.transition, privacy: .public): no longer applies")
+            GeofenceTrace.add("dropping pending \(pending.transition): no longer applies")
             Self.clearPending()
             return
         }
@@ -218,10 +225,10 @@ final class ArrivalController {
         let taskID = UIApplication.shared.beginBackgroundTask(withName: "arrival-retry")
         defer { UIApplication.shared.endBackgroundTask(taskID) }
 
-        geofenceLog.info("retrying pending \(pending.transition, privacy: .public)")
+        GeofenceTrace.add("retrying pending \(pending.transition)")
         let result = await store.runAutomation(isOn: turningOn, lightIDs: settings.lightIDs, includeHomeKit: false)
         guard !Self.needsRetry(result) else {
-            geofenceLog.info("retry still failing: \(result.done) done, \(result.failed) failed")
+            GeofenceTrace.add("retry still failing: \(result.done) done, \(result.failed) failed")
             return
         }
         Self.clearPending()
@@ -229,7 +236,7 @@ final class ArrivalController {
         let message = turningOn
             ? String(localized: "Retried: turned on \(result.done) lights")
             : String(localized: "Retried: turned off \(result.done) lights")
-        geofenceLog.info("retry succeeded: \(result.done) done")
+        GeofenceTrace.add("retry succeeded: \(result.done) done")
         log.add(turningOn ? .arrived : .left, message)
         guard settings.notify else { return }
         let content = UNMutableNotificationContent()
@@ -239,7 +246,7 @@ final class ArrivalController {
     }
 
     private func report(_ result: AutomationResult, turningOn: Bool, isTest: Bool) {
-        geofenceLog.info("automation on=\(turningOn): \(result.done) done, \(result.failed) failed, \(result.leftToHomeKit) via Apple Home")
+        GeofenceTrace.add("automation on=\(turningOn): \(result.done) done, \(result.failed) failed, \(result.leftToHomeKit) via Apple Home")
         var kind: ActivityEntry.Kind = isTest ? .test : (turningOn ? .arrived : .left)
         var title = turningOn ? String(localized: "Welcome home") : String(localized: "You left home")
         var message: String
@@ -292,7 +299,7 @@ final class ArrivalController {
             guard let item = resolveShortcut?(id), let url = ShortcutsService.runURL(named: item.name) else { continue }
             let opened = await UIApplication.shared.open(url)
             if !opened {
-                geofenceLog.error("shortcut '\(item.name, privacy: .public)': couldn't open (app likely backgrounded)")
+                GeofenceTrace.add("shortcut '\(item.name)': couldn't open (app likely backgrounded)")
                 log.add(.error, String(localized: "Couldn't start “\(item.name)”"))
             }
         }

@@ -40,6 +40,14 @@ final class LocationService: NSObject {
     /// this can't overrule it — see didUpdateLocations.
     private var lastZoneEventDate: Date?
     private static let maxFixAge: TimeInterval = 30
+    /// When this process last acted on a transition, from any source.
+    private var lastTransitionDate: Date?
+    /// The sources don't agree straight away: on a background relaunch for an arrival, a
+    /// fresh GPS fix said "inside", and a moment later the classic region — not caught up
+    /// yet — answered "outside". Acting on both switched the lights on and straight back off,
+    /// and the cooldown then held them off. For this long after a transition, a report of
+    /// the opposite is taken as a source lagging behind, not as you having moved.
+    private static let settleTime: TimeInterval = 60
 
     /// Only real transitions (outside → inside, inside → outside) are reported, never the
     /// first "you are already inside" determination after setting the zone up.
@@ -63,11 +71,24 @@ final class LocationService: NSObject {
     var canMonitorInBackground: Bool { authorization == .authorizedAlways }
     var isDenied: Bool { authorization == .denied || authorization == .restricted }
 
-    func requestPermission() {
+    private static let askedAlwaysKey = "location.askedAlways"
+
+    /// Shows the system prompt if iOS still will; returns false when it won't — iOS only
+    /// ever offers the upgrade to "Always" once, after which the button has to send the
+    /// user to Settings or it silently does nothing.
+    @discardableResult
+    func requestPermission() -> Bool {
         switch authorization {
-        case .notDetermined: manager.requestWhenInUseAuthorization()
-        case .authorizedWhenInUse: manager.requestAlwaysAuthorization()
-        default: break
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+            return true
+        case .authorizedWhenInUse:
+            guard !UserDefaults.standard.bool(forKey: Self.askedAlwaysKey) else { return false }
+            UserDefaults.standard.set(true, forKey: Self.askedAlwaysKey)
+            manager.requestAlwaysAuthorization()
+            return true
+        default:
+            return false
         }
     }
 
@@ -95,14 +116,14 @@ final class LocationService: NSObject {
     /// Must run at launch (including background relaunches) so pending events get delivered.
     func activateMonitor() async {
         guard monitor == nil else { return }
-        geofenceLog.info("creating monitor")
+        GeofenceTrace.add("creating monitor")
         let m = await CLMonitor(Self.monitorName)
         monitor = m
-        geofenceLog.info("monitor ready, auth=\(String(describing: self.authorization), privacy: .public)")
+        GeofenceTrace.add("monitor ready, auth=\(String(describing: self.authorization))")
         eventsTask = Task { [weak self] in
             do {
                 for try await event in await m.events {
-                    geofenceLog.info("monitor event \(event.identifier, privacy: .public) state=\(String(describing: event.state), privacy: .public)")
+                    GeofenceTrace.add("monitor event \(event.identifier) state=\(String(describing: event.state))")
                     self?.handle(state: event.state)
                 }
             } catch {}
@@ -134,7 +155,7 @@ final class LocationService: NSObject {
         // CLMonitor's record.lastEvent — at launch that's still the old state, and feeding it
         // in reported a false departure right after a real arrival.)
         if await isAlreadyMonitoring(center: center, radius: radius, monitor: monitor) {
-            geofenceLog.info("zone unchanged, keeping existing monitoring")
+            GeofenceTrace.add("zone unchanged, keeping existing monitoring")
             requestClassicState()
             manager.startMonitoringSignificantLocationChanges()
             return
@@ -167,7 +188,7 @@ final class LocationService: NSObject {
             assumed = inside ? .satisfied : .unsatisfied
             handle(inside: inside)
         }
-        geofenceLog.info("zone set r=\(radius) assumed=\(String(describing: assumed), privacy: .public)")
+        GeofenceTrace.add("zone set r=\(radius) assumed=\(String(describing: assumed))")
         let condition = CLMonitor.CircularGeographicCondition(center: center.clCoordinate, radius: radius)
         await monitor.add(condition, identifier: Self.conditionID, assuming: assumed)
 
@@ -241,14 +262,38 @@ final class LocationService: NSObject {
         handle(inside: inside)
     }
 
+    /// A boundary crossing iOS reported (didEnterRegion / didExitRegion), as opposed to a
+    /// state. Crossing in means you were outside a moment ago — even if the matching "exited"
+    /// never reached the app. That's the usual case after a swipe-away: a 100 m exit can go
+    /// unreported, isInsideZone stays `true`, and the arrival that does arrive used to be
+    /// dropped as "already inside", with no lights and no notification. The crossing is acted
+    /// on regardless; a duplicate of the same crossing from CLMonitor is still collapsed by
+    /// handle(inside:), and a repeat of the automation by ArrivalController's cooldown.
+    private func handleCrossing(inside: Bool) {
+        // iOS often repeats a crossing a few seconds later; that's the same arrival, not
+        // a sign the opposite one was missed.
+        let isRepeat = lastTransitionDate.map { Date.now.timeIntervalSince($0) < 120 } ?? false
+        if isInsideZone == inside, !isRepeat {
+            GeofenceTrace.add("crossing \(inside ? "in" : "out") while remembered \(inside ? "inside" : "outside"): the opposite crossing was missed")
+            isInsideZone = !inside
+        }
+        handleGeofence(inside: inside)
+    }
+
     /// Shared by both monitoring paths (CLMonitor and the classic region API below), so a
     /// transition reported by either — or both, in whichever order they happen to arrive —
     /// is only ever acted on once.
     private func handle(inside: Bool) {
         let previous = isInsideZone
+        if let previous, previous != inside, let last = lastTransitionDate,
+           Date.now.timeIntervalSince(last) < Self.settleTime {
+            GeofenceTrace.add("ignored \(inside ? "inside" : "outside"): \(Int(Date.now.timeIntervalSince(last)))s after the last transition")
+            return
+        }
         isInsideZone = inside
         guard let previous, previous != inside else { return }
-        geofenceLog.info("transition \(inside ? "entered" : "exited", privacy: .public)")
+        lastTransitionDate = .now
+        GeofenceTrace.add("transition \(inside ? "entered" : "exited")")
         onTransition?(inside ? .entered : .exited)
     }
 }
@@ -267,16 +312,16 @@ extension LocationService: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         guard region.identifier == Self.classicRegionID else { return }
         Task { @MainActor in
-            geofenceLog.info("classic region: entered")
-            self.handleGeofence(inside: true)
+            GeofenceTrace.add("classic region: entered")
+            self.handleCrossing(inside: true)
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         guard region.identifier == Self.classicRegionID else { return }
         Task { @MainActor in
-            geofenceLog.info("classic region: exited")
-            self.handleGeofence(inside: false)
+            GeofenceTrace.add("classic region: exited")
+            self.handleCrossing(inside: false)
         }
     }
 
@@ -286,14 +331,14 @@ extension LocationService: CLLocationManagerDelegate {
         guard region.identifier == Self.classicRegionID, state != .unknown else { return }
         let inside = state == .inside
         Task { @MainActor in
-            geofenceLog.info("classic region state: \(inside ? "inside" : "outside", privacy: .public)")
+            GeofenceTrace.add("classic region state: \(inside ? "inside" : "outside")")
             self.handleGeofence(inside: inside)
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
         guard region?.identifier == Self.classicRegionID else { return }
-        geofenceLog.error("classic region monitoring failed: \(error.localizedDescription, privacy: .public)")
+        GeofenceTrace.add("classic region monitoring failed: \(error.localizedDescription)")
     }
 
     /// Fires only for significant-location-change monitoring here (nothing else in this app
@@ -308,7 +353,7 @@ extension LocationService: CLLocationManagerDelegate {
             guard let zone = self.currentZone else { return }
             let inside = newest.distance(from: zone.center.location) <= zone.radius
             let age = -newest.timestamp.timeIntervalSinceNow
-            geofenceLog.info("significant location change: \(inside ? "inside" : "outside", privacy: .public) age=\(Int(age))s acc=\(Int(newest.horizontalAccuracy))m")
+            GeofenceTrace.add("significant location change: \(inside ? "inside" : "outside") age=\(Int(age))s acc=\(Int(newest.horizontalAccuracy))m")
             // Starting significant-change monitoring at launch first hands back iOS's cached
             // last position, which can be from before the trip home. On a background relaunch
             // for an arrival that stale "outside" landed right after the real "entered" and

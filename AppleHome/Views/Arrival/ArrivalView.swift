@@ -476,10 +476,8 @@ private struct PermissionCard: View {
                 .foregroundStyle(Theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             Button {
-                if location.isDenied {
+                if location.isDenied || !location.requestPermission() {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
-                } else {
-                    location.requestPermission()
                 }
             } label: {
                 Text(buttonTitle)
